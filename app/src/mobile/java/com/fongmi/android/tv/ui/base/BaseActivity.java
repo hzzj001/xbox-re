@@ -124,8 +124,19 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private void enableDynamicColor() {
-        int color = Setting.getDynamicColor();
-        if (color != 0) DynamicColors.applyToActivityIfAvailable(this, new DynamicColorsOptions.Builder().setContentBasedSource(color).build());
+        try {
+            int color = Setting.getDynamicColor();
+            if (color != 0) DynamicColors.applyToActivityIfAvailable(this, new DynamicColorsOptions.Builder().setContentBasedSource(color).build());
+        } catch (Throwable ignored) {
+            // Theme.Base 已是 Material3.DynamicColors.*，叠加 contentBasedSource 在
+            // 部分 Material/系统组合会抛异常。用户改主题色后 recreate 会走到这里，
+            // 原实现未兜底 → 表现为「点确定 app 就退出」。回退到系统动态色，不崩。
+            try {
+                DynamicColors.applyToActivityIfAvailable(this);
+            } catch (Throwable ignoredToo) {
+                // 最终兜底：保持基础主题，保证 Activity 一定能起来。
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

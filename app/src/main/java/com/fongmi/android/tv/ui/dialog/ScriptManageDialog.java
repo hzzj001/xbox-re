@@ -271,16 +271,16 @@ public final class ScriptManageDialog extends BaseAlertDialog {
         row.addView(view, lp);
     }
 
-    /** 段标签：12sp、固定 34dp，过长中间省略。 */
+    /** 段标签：13sp、宽度自适应、不省略；左右段由 weight 撑满，文字完整显示。 */
     private void addLabel(LinearLayoutCompat row, int text, int gapDp) {
         android.widget.TextView view = new android.widget.TextView(requireContext());
         view.setText(text);
         view.setSingleLine(true);
-        view.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         view.setGravity(Gravity.CENTER);
-        view.setTextSize(12);
+        view.setTextSize(13);
         view.setTextColor(ContextCompat.getColor(requireContext(), R.color.dialog_outlined_button_text));
-        LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(dp(34), dp(24));
+        LinearLayoutCompat.LayoutParams lp = new LinearLayoutCompat.LayoutParams(
+                LinearLayoutCompat.LayoutParams.WRAP_CONTENT, dp(24));
         lp.setMarginStart(dp(gapDp));
         row.addView(view, lp);
     }

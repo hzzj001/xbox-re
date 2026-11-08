@@ -3,6 +3,7 @@ package com.fongmi.android.tv.utils;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.utils.Path;
 import com.github.catvod.utils.Prefers;
 
@@ -116,7 +117,7 @@ public final class LocalScriptSource {
         File root = new File(dir);
         if (!root.isDirectory()) return out;
         collect(root, out);
-        // 首次生成 json 的次序：py -> js -> html -> url（url 是后来手工追加的，天然在尾部）；
+        // 首次生成 json 的次序：py -> js -> html -> url（url 恒排最后，见 insertPos()）；
         // 组内按绝对路径。已有 json 的次序由 load() 保留，不在这里重排。
         out.sort((a, b) -> {
             int byExt = extRank(a) - extRank(b);
@@ -374,12 +375,14 @@ public final class LocalScriptSource {
         for (JSONObject item : sites) migrated |= migrateHome(item);
         for (JSONObject item : bac) migrated |= migrateHome(item);
 
-        // 规则 3：新文件追加进 sites（规则 1、2 自然满足——已在里面就不动，保留手改的 name/ext/proxy）
+        // 规则 3：新增脚本按 py -> js -> html -> url 插入对应分组尾部；
+        // 已有条目的相对次序一律不动（用户改过 / 排过的 json 保持现状）。
         boolean changed = false;
         for (File file : found) {
             String key = keyOf(root, file);
             if (liveKeys.contains(key)) continue;
-            sites.add(newItem(root, file));
+            JSONObject item = newItem(root, file);
+            sites.add(insertPos(sites, item), item);
             liveKeys.add(key);
             changed = true;
         }
@@ -412,13 +415,51 @@ public final class LocalScriptSource {
         JSONObject root = new JSONObject();
         try {
             root.put("warningText", "本地脚本目录：" + dir);
-            root.put("sites", toArray(pair.first));
+            root.put("sites", parseSites(pair.first));
             JSONArray lives = new JSONArray();
             lives.put(new JSONObject());
             root.put("lives", lives);
         } catch (Exception ignored) {
         }
         return root.toString();
+    }
+
+    /**
+     * 解析用副本：磁盘上的 json 一个字节不改（key / name / 次序 / sites_bac 都保持现状），
+     * 只保证每条都能被 VodConfig 解析、并且一定留在站点切换列表里。
+     *   - key 为空 / 重复 → 补唯一副本 key：Site.equals 按 key 去重，空 key 会让多条
+     *     解析失败的站点被 .distinct() 吞成一条，表现为「工作区有、站点列表没有」。
+     *   - name 为空 → 用 key 兜底：否则列表项空白、搜索也匹配不到。
+     *   - hide 强制 0：旧数据里残留 hide=1 时 SiteBlockSetting.filter 会直接丢掉该站点。
+     *   - ext / proxy / api / homePage 等统一成字符串：非 primitive 会让 ExtAdapter /
+     *     Gson 解析抛异常，objectFrom 的 catch 返回空 Site，同样被去重吞掉。
+     * 输出条数记入 proxy 日志，便于实机对照「工作区条数 vs 站点列表条数」。
+     */
+    private static JSONArray parseSites(List<JSONObject> sites) {
+        JSONArray out = new JSONArray();
+        Set<String> keys = new HashSet<>();
+        int index = 0;
+        for (JSONObject item : sites) {
+            try {
+                JSONObject copy = new JSONObject(item.toString());
+                String key = copy.optString("key").trim();
+                if (key.isEmpty()) key = "script_" + index;
+                if (!keys.add(key)) key = key + "#" + index;
+                copy.put("key", key);
+                if (copy.optString("name").trim().isEmpty()) copy.put("name", key);
+                copy.put("hide", 0);
+                String[] fields = {"ext", "proxy", "api", "homePage", "jar", "click", "playUrl", "chromeMode"};
+                for (String field : fields) {
+                    Object value = copy.opt(field);
+                    if (value != null && !(value instanceof String)) copy.put(field, value.toString());
+                }
+                out.put(copy);
+                index++;
+            } catch (Exception ignored) {
+            }
+        }
+        SpiderDebug.log("script", "buildJson sites in=%s out=%s", sites.size(), out.length());
+        return out;
     }
 
     /**
@@ -433,6 +474,22 @@ public final class LocalScriptSource {
     }
 
     /* ---------------- 分类 ---------------- */
+
+    /** 生成 / 新增条目时的类型次序：py(0) -> js(1) -> html(2) -> url(3)。 */
+    private static int insertPos(List<JSONObject> sites, JSONObject item) {
+        int rank = typeRank(item);
+        for (int i = 0; i < sites.size(); i++) if (typeRank(sites.get(i)) > rank) return i;
+        return sites.size();
+    }
+
+    private static int typeRank(JSONObject item) {
+        switch (kindOf(item)) {
+            case "py": return 0;
+            case "js": return 1;
+            case "html": return 2;
+            default: return 3;
+        }
+    }
 
     public static String kindOf(JSONObject item) {
         String key = item.optString("key");
@@ -544,7 +601,7 @@ public final class LocalScriptSource {
             item.put("quickSearch", 1);
         } catch (Exception ignored) {
         }
-        pair.first.add(item);
+        pair.first.add(insertPos(pair.first, item), item);
         save(dir, pair.first, pair.second);
         return true;
     }

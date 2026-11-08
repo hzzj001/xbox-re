@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.fongmi.android.tv.api.config.VodConfig;
 import com.fongmi.android.tv.bean.Site;
 import com.fongmi.android.tv.utils.LocalScriptSource;
+import com.fongmi.chaquo.ProxyEnv;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Prefers;
 
@@ -159,10 +160,18 @@ public final class SiteFeature {
      * 会命中总闸，所以本地 py/js 脚本链路仍生效。
      * 地址非法由 setGlobal 记入 proxy 日志，不再静默吞异常后仍显示亮。
      */
+    /** 当前总闸地址：图标亮取默认代理地址，暗为空串。py 侧与 selector 共用同一口径。 */
+    public static String globalUrl() {
+        return isOn(VodConfig.get().getHome()) ? proxyUrl() : "";
+    }
+
     public static void apply() {
-        String url = isOn(VodConfig.get().getHome()) ? proxyUrl() : "";
+        String url = globalUrl();
         OkHttp.selector().setGlobal(url);
         OkHttp.closeIdleConnections();
+        // py 是进程内 CPython，requests 不读 JVM ProxySelector；宿主直接改写它的 os.environ。
+        // Python 未启动时跳过，PyLoader 首次加载脚本时会再应用一次。
+        ProxyEnv.apply(url);
     }
 
 }

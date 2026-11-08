@@ -131,5 +131,26 @@
             android:name=".service.DLNACastService"
             android:exported="false" />
 
+
+        <!-- 个性设置 → APP 图标切换：上游搬入 AppBranding 时漏了 Manifest 声明，
+             导致 launcherIntent() 指向不存在的 HomeActivityCurrent 而崩溃。
+             这两个 alias 只作为「显式 ComponentName 启动 / getActivityIcon 取图标」的组件，
+             故意不带 intent-filter：桌面入口仍由 HomeActivity 自己的 MAIN/LAUNCHER 提供，
+             因此桌面图标恒为 @mipmap/ic_launcher（我们的新图标），且不会出现多个图标。 -->
+        <activity-alias
+            android:name=".ui.activity.HomeActivityCurrent"
+            android:targetActivity=".ui.activity.HomeActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity-alias
+            android:name=".ui.activity.HomeActivityHistory"
+            android:targetActivity=".ui.activity.HomeActivity"
+            android:icon="@drawable/ic_launcher_history"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true" />
     </application>
 </manifest>

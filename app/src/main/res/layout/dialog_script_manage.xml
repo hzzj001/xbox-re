@@ -91,18 +91,21 @@
         android:orientation="horizontal" />
 
     <!-- 第 5 行：工作区/回收站的选择与移动工具（图标，无外圈，三段对齐） -->
+    <!-- 第 5 行：左右两段 weight=1 撑满整行，中段固定 84dp；
+         不再用固定 264dp 居中，屏幕两侧空白全部让给「工作区 / 回收站」文字。 -->
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/actionRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/actionLeft"
-            android:layout_width="86dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="start|center_vertical"
             android:orientation="horizontal" />
 
@@ -123,8 +126,9 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/actionRight"
-            android:layout_width="86dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="end|center_vertical"
             android:orientation="horizontal" />
 

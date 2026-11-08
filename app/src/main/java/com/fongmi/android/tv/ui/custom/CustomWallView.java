@@ -42,7 +42,7 @@ import pl.droidsonroids.gif.GifDrawable;
 
 public class CustomWallView extends FrameLayout implements DefaultLifecycleObserver {
 
-    private static final int DEFAULT_WALL_COLOR = Setting.getBuiltInWallColor(Setting.WALL_DREAM_PURPLE);
+    private static final int DEFAULT_WALL_COLOR = Setting.getBuiltInWallColor(Setting.WALL_DAYLIGHT_MINIMAL);
     private static final int GREEN_WALL_COLOR = 0xFF40C090;
     private static final int MAX_WALL_BITMAP_SIDE = 1920;
     private static final int TYPE_RES = 0;

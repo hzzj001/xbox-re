@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewpager.widget.PagerAdapter;
+import androidx.appcompat.widget.ActionMenuView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.fongmi.android.tv.App;
@@ -141,6 +142,7 @@ public class VodFragment extends BaseFragment implements ConfigListener, SiteLis
         mBinding.filter.setOnLongClickListener(this::onLink);
         mBinding.toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
         mBinding.toolbar.post(this::setSearchLongClick);
+        mBinding.toolbar.post(this::compactToolbar);
         mBinding.appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             int range = appBarLayout.getTotalScrollRange();
             if (range <= 0) return;
@@ -366,6 +368,46 @@ public class VodFragment extends BaseFragment implements ConfigListener, SiteLis
                 proxy.setIcon(icon);
             }
         }
+        compactToolbar();
+    }
+
+    /**
+     * 首页顶部一行按钮：真正收紧搜索往右的按钮间距。
+     * AndroidX ActionMenuItemView.onMeasure 在 AT_MOST 下会按自身 style 的
+     * android:minWidth（48dp）强制撑宽；原先调 View.setMinimumWidth(28dp) 改的是
+     * View 基类字段，对该类私有 mMinWidth 无效，所以按钮仍 48dp 一格、整行分散。
+     * 这里给每个按钮的 LayoutParams.width 写死 30dp，让 measureSpec 变成 EXACTLY，
+     * 绕过 minWidth 强制撑宽；同时把 ActionMenuView 自身宽度保持 WRAP_CONTENT，
+     * 避免进入 EXACTLY 格式的 56dp cell 均分（那会把按钮再次铺满整行）。
+     * 按钮 48dp → 30dp，图标间空隙约 30dp → 8dp；整组按 Android 标准靠右聚拢。
+     * 不动 toolbar 高度，homeWeb 的 marginTop 仍对齐 ?attr/actionBarSize。
+     */
+    private void compactToolbar() {
+        int button = ResUtil.dp2px(30);
+        int padding = ResUtil.dp2px(2);
+        for (int i = 0; i < mBinding.toolbar.getChildCount(); i++) {
+            View child = mBinding.toolbar.getChildAt(i);
+            if (!(child instanceof ActionMenuView)) continue;
+            ViewGroup menu = (ViewGroup) child;
+            ViewGroup.LayoutParams menuParams = menu.getLayoutParams();
+            if (menuParams != null && menuParams.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
+                menuParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                menu.setLayoutParams(menuParams);
+            }
+            for (int j = 0; j < menu.getChildCount(); j++) {
+                View action = menu.getChildAt(j);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) action.getLayoutParams();
+                if (lp == null) continue;
+                if (lp.width != button || lp.leftMargin != 0 || lp.rightMargin != 0) {
+                    lp.width = button;
+                    lp.leftMargin = 0;
+                    lp.rightMargin = 0;
+                    action.setLayoutParams(lp);
+                }
+                action.setMinimumWidth(0);
+                action.setPadding(padding, 0, padding, 0);
+            }
+        }
     }
 
     /** 首页代理按钮：循环开关，明暗按当前站点配置翻转并写回，立即生效。 */
@@ -405,6 +447,7 @@ public class VodFragment extends BaseFragment implements ConfigListener, SiteLis
 
     private void homeContent() {
         requestNormalChrome();
+        if (mWeb != null) mWeb.closePage();
         showProgress();
         mBinding.homeWeb.setVisibility(View.GONE);
         updateToolbarMenu();

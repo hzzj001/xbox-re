@@ -134,7 +134,18 @@ Before changing code, locks, build scripts, patches, artifacts, or runtime behav
 10. **端到端验证不能只靠 CI 自述**。沙盒出网被网关挡住，Release 资产与 Actions artifact 均下载不了（403），所以每轮都必须如实写明「未做端到端验包」。修复方式：CI 生成 `dist/signature-report.txt`（每个 APK 的 META-INF 清单、apksigner verify 全文、证书、sha256）并作为 Release 资产上传，让用户能直接对照 MT 显示的指纹；不得在未声明这一限制的情况下说「签名已验证/完成」。用户工具报错时先问清具体文字与签名方案，不要凭 CI 结果反推「已经修好」。
 11. **收紧门禁前先看正常输出长什么样**。曾为「更严谨」加了「拒绝任何 apksigner WARNING」，结果 run `42268600502` 倒在验签步骤：AGP 打的包必然对 `META-INF/app-metadata.properties`、`version-control-info.textproto`、`androidx.*.version` 报 `WARNING: ... not protected by signature`，这是标准提示，与签名有效性无关，MT 也不会因此判不通过。断言必须带白名单（只拦截 `not protected by signature` 之外的 WARNING），不能一刀切。新增任何「全量拒绝型」断言前，先跑一次看真实输出。
 
-12. **APK 变体数与校验断言不得硬编码**。曾把构建任务写死四行 `assemble*Release`、验签步骤写死 `test "$count" -eq 4`；用户只要「手机 v8a + TV v7a」两个包时就必须改 workflow，否则会多构建两个、或倒在该断言上白耗一轮 Actions。构建任务由 `workflow_dispatch` 输入 `apk_variants` 拼装（`all` = 四包，或逗号分隔指定），`expected_apk_count` 写进 `steps.build_apks.outputs`，验签步骤按输出值断言。collect / 补签 / 验签 / manifests / 发版全部用 `dist/*.apk` glob 动态遍历，增减变体不再需要改脚本。
+
+
+12. **搬入上游 Java 必须做「方法级可达性」检查，不能只查 import**。`import` 可达 ≠ 方法存在：第七/八批搬入 44+31 个类后，本地只校验了 import 与 R 引用，漏掉 若干公共类方法 / `Setting.resolveTmdbDetailLightTheme(int,boolean)` / `Util.resetApp()` 三个静态调用，以及 `Setting.clampTmdbDetailTheme(int)` 这个被调私有方法——这些只有到 CI 编译才会报 `cannot find symbol`。规定：每批搬入后，扫描新增 Java 对 `Setting` / `PlayerSetting` / `Prefers` / `Util` / `App` / `ResUtil` / `Notify` / `ImgUtil` / `VodConfig` / `SiteApi` 等公共类的 `Cls.method(` 调用，逐一对齐**当前分支状态**（含同批已补成员）里定义的方法；同时核对跨变体同名类（如 `VideoActivity.start(...)`）的重载参数在两个变体都存在。曾踩：`TmdbPersonDialog` 调 5 参 start、`TmdbNavigation` 调 6 参 start，两变体重载不齐就会编译失败。
+13. **APK 变体数与校验断言不得硬编码**。曾把构建任务写死四行 `assemble*Release`、验签步骤写死 `test "$count" -eq 4`；用户只要「手机 v8a + TV v7a」两个包时就必须改 workflow，否则会多构建两个、或倒在该断言上白耗一轮 Actions。构建任务由 `workflow_dispatch` 输入 `apk_variants` 拼装（`all` = 四包，或逗号分隔指定），`expected_apk_count` 写进 `steps.build_apks.outputs`，验签步骤按输出值断言。collect / 补签 / 验签 / manifests / 发版全部用 `dist/*.apk` glob 动态遍历，增减变体不再需要改脚本。
+14. **批量删除代码块后必须检查「类闭合 } 之后是否残留方法」**。第十批清 TMDB 时把 `onPersonal` 从类内删走，却在两个设置页文件的 `}` 之后留下 3 行孤儿方法；javac 21 把它当 unnamed class，报 `unnamed class should not have package declaration` / `unnamed classes are a preview feature and are disabled by default`，构建直接失败。每次删除/搬移方法后，全库扫一遍「顶层类闭合行之后仍有非空代码」，并与成功构建的 main 对比排除误报（字符串里的 `{`、多个顶层类、匿名内部类都会让裸括号计数误报）。
+15. **搬入上游 Java 后必须做「方法级 + 重载参数 + 实例方法」三重可达性检查，不能只查 import 与 R 引用**。第三次 CI run 42382714709 报了 10 个 `cannot find symbol`：8 处是 `LightDialog.apply(AlertDialog)`（分支精简版 LightDialog 没这个方法，需连 4 个 resolve* 与 applyAlertWindow / resizeAlertList 一起补，且不能覆盖分支已有的 applyWindow）、1 处 `AppBackup.fileName(boolean)`（只有无参版，同名方法存在不代表重载够用）、1 处 `site.getDisplayName()`（实例方法调用，静态 `Xxx.method(` 扫描抓不到）。修法：以成功构建的 main 为基线，对全库 Java 扫「项目类静态调用 / 已知实例方法 / 调用点实参个数」，凡上游有定义而分支无定义的一律补齐；匿名内部类、内部类 `X.Listener`、两个同名 Util、JDK `Class/Process/Proxy` 属误报，须排除。
+16. **搬入上游代码后必须再扫「类内私有方法 / 常量 / 重载 / lambda 参数嵌套」四类隐形缺口**。第四次 CI run 42383352055 报的 10 个错误全是这类：`Setting.java` 调用了 `clampGlobalHistoryMode` / `clampSearchThread` 两个私有方法与 `GLOBAL_HISTORY_*` 三个常量却没定义；`ImgUtil.logo(view, logo)` 缺两参重载；`CustomWebView.sniff(Pattern)` 缺方法与字段（猫源设置中心要用）；`SettingEnhanceFragment` 把实验室入口 `view ->` 插进了 `customCsp` 的 lambda 体内，与外层 lambda 参数同名，javac 报 `variable view is already defined`。修法：以成功构建的 main 为基线，全库扫「本类调用但未定义而上游同类有定义」「全大写常量是否已定义」「静态调用的方法是否含所需重载参数」「新增 setOnClickListener 是否落在别的 lambda 块内」，四项都清零再出包。
+17. **搬入上游 Java 后必须做「按包解析的 import 可达性」扫描，不能只看 import 语句里引用的类是否存在**。第五次 CI run 42384169843 报 `Setting.java:818 cannot find symbol`，原因是新增的 `isTouchOptimized()` 调用了 `Util.isLeanback()`，却没 `import com.fongmi.android.tv.utils.Util`。修法：对每个 Java 文件取 package 声明，收集显式 import、通配 import 覆盖的类、同包顶层类、文件内定义的类/枚举，再扫所有 `Xxx.` 调用；凡 `Xxx` 是项目顶层类却四者都不可见的一律补 import。注意 `Class.forName` 是 java.lang.Class，项目里恰好有个同名 bean 类属误报，须排除；多同名类必须按包建立多重映射，不能用字典覆盖。
+18. **搬入上游 layout / Java 后必须按 variant 分别校验 style 的隐式 parent 与可见性**。第六次 CI run 42384891843 倒在 `:app:processMobileArm64_v8aDebugResources`，报 `style/Widget.WebHTV.LightDialog not found`：Android 的 style 名含点且未写 parent 时会隐式继承去掉末段的名字，`Widget.WebHTV.LightDialog.Label/Helper/Input` 三个都隐式指向被精简掉的空壳 `Widget.WebHTV.LightDialog`，而它又隐式指向 `Widget.WebHTV`。另外 main 的 `activity_app_branding.xml` 引用 `ToolbarTextAppearance`，mobile 的 styles.xml 有定义、leanback 没有，TV 变体编译时会挂。修法：main + mobile / main + leanback 各算一次可见 style 集合，扫全部 `@style/` 引用与无 parent 的带点 style 的隐式父，两变体都清零才出包；补定义优先放 main，且必须核对该 style 块引用的 color/drawable/parent 在分支都存在，不能整份覆盖上游 styles.xml（上游那份引用了已清除的追更/显示选项资源）。
+19. **同一功能在 mobile / leanback 两个变体的同名设置页必须成对检查，且不能拿 debug 编译结果当 release 结论**。第七次 CI run 42386092445 里门禁与单测（只编译 mobile debug）全绿、release 才编译 leanback 时报 `SettingEnhanceActivity.java:93 variable view is already defined`——第五轮只修了 mobile 的 `SettingEnhanceFragment`，漏了 leanback 的 `SettingEnhanceActivity`，两处都是实验室入口 `view ->` 插进 `customCsp` 的 lambda 块。另外一次 `./gradlew` 跑多个 assemble 且未加 `--continue` 时，任一变体失败会连锁取消其它任务，`minifyMobileArm64_v8aReleaseWithR8` 报 `Compilation failed to complete` 属连锁失败，不要当成独立的 R8 问题去改混淆规则。修法：凡按变体新增/修改的 Java，两个 sourceSet 都过一遍括号、lambda 参数、import、Binding id；出包前明确知道 debug 门禁只覆盖 mobile。
+20. **搬第三方库必须连它的可选/配套依赖一起核对，且 release 的 R8 结果只有真实出包才验证得到**。第九次 CI run 42388274148 前面全绿、倒在 `:app:minifyMobileArm64_v8aReleaseWithR8`：`Missing class org.tukaani.xz.*`（commons-compress 的 7z LZMA2/BCJ/Delta 编解码引用）。上游 app/build.gradle 是 `implementation libs.commons.compress` 与 `implementation libs.tukaani.xz` 成对出现，libs.versions.toml 也同时有 `tukaaniXz = "1.12"` 和 `tukaani-xz` catalog；第六批实验室只搬了前者。debug 编译不跑 R8，所以门禁/单测全过也查不出。修法：按上游原样补 version + catalog + implementation 三处；以后凡新增依赖，先 diff 上游同文件的依赖声明，把配套项一并搬运。
+21. **搬上游 values 文件时不能因为「分支里已有同名 key」就删行，必须按 sourceSet 判断可见性**。第十次 CI run 42388955264 倒在 `:app:processLeanbackArmeabi_v7aReleaseResources`：`menu_lab.xml` / `menu_lab_detail.xml` 引用 `@string/nav_setting` 找不到。上游在 `app/src/main/res/values/lab_strings.xml` 定义了 `nav_setting=设置`，第六批实验室搬该文件时看到分支 mobile 的 strings.xml 已有同名项，就把搬入行删了；但 main 资源包编译时看不到 mobile/leanback 的定义，于是 main 的 menu 引用悬空。修法：main 目录下的文件（menu/layout/Java）引用的资源，必须在 main 的 values 里就有定义；mobile/leanback 的同名项只能覆盖显示值、不能替代 main 定义。搬 values 前先按 `app/src/xxx/` 分组比对上游与分支的 key 集合，差异项一律补回。
 
 
 ### 每次出包前的固定预检清单
@@ -148,3 +159,123 @@ Before changing code, locks, build scripts, patches, artifacts, or runtime behav
 - 本轮只 dispatch 一次；轮询到 completed 才下结论
 - 断言若用「拒绝任何 WARNING / 任何差异」这种全量口径，必须确认过正常输出里没有该类内容
 - `signature-report.txt` 已生成并上传；若资产下载受限，明确告知「未端到端验包」，附证书 SHA256 指纹供用户对照
+
+13. **资源 / import / 方法级可达性校验必须只用「当前分支 tree」**，禁止把上游缓存混进资源池。
+    前九批多次报「R 引用 0 缺失」，实为把上游 webhtv 缓存算作已定义；改用分支自身 zipball
+    tree 重算后才发现 188 项缺失。每批搬入后必须核对「新增文件 + modified 文件 diff 新增行」
+    的全部 `R.x.y` / `@x/y` 引用。另：GitHub compare API 对大文件不返回 patch，
+    必须直接取 main 基线内容做本地 diff，不能只看 API patch。
+
+22. **交互类回归三条（本轮实测）**：
+    - 新增 / 启用 Fragment 分支（如 `case 5 -> SettingPersonalFragment`）必须同步 `mobile HomeActivity.onBackInvoked()` 的返回分支；漏了就会一路落到 `mManager.canBack(0)` → `super.onBackInvoked()` → `finish()`，表现为「个性设置按返回直接关掉 app」。返回分支要覆盖所有设置子页 position。
+    - 自定义窗口尺寸的 Dialog（如 `AboutDialog`）必须在 `dialog.show()` **之前** `configureWindow()`，并显式 `setOnShowListener(d -> configureWindow(...))` 覆盖 `LightDialog.create` 的幂等回调；否则首帧先按 LightDialog 默认尺寸居中，show 后被改成本页尺寸，整窗「闪移」。此规则同样适用于任何绕过 `BaseAlertDialog` 直接用 `Dialog` 的弹窗。
+    - 脚本 json 首次生成 / 新增条目必须按 `py -> js -> html -> url` 插入对应分组尾部（`insertPos()`），不能一律 `sites.add(...)` append——已有 url 条目时新 py 会排到 url 后面。同时已有条目的相对次序一律不动（用户改过 / 排过的 json 保持现状），`reset()` 不重排。
+
+23. **在已有方法前插入代码时，不得改动原方法的声明（可见性 / static / 返回类型 / 参数）**。
+    本轮为给 LocalScriptSource 加 insertPos/typeRank，用「替换 kindOf 声明行」的方式插入，
+    new_string 里把 `public static String kindOf` 误写成 `private static`，CI 直接报
+    `ScriptManageDialog.java:400 error: kindOf(JSONObject) has private access`。
+    插入辅助方法一律用「锚点前追加」而非「替换原声明为 private」；改完必须全库扫一遍
+    `LocalScriptSource.kindOf(` 之类的外部调用点，确认可见性没被降。任何对现有方法签名的改动，
+    先 grep 调用点再提交，不要等 CI 编译来发现。
+
+24. **代理总闸的三根线不许再退回「jar 自行判定」**：
+    - 第 1 根线：`OkProxySelector.installAsDefault()` 在 `App.onCreate()` 调一次，
+      进程内所有 `openConnection(null)` 都命中 `global`；`clear()` **不得**再
+      `Authenticator.setDefault(null)`（selector 常驻后认证器要保留）。`system`
+      构造时已存系统原默认，`fallback()` 不会递归。
+    - 第 2 根线：`chaquo/ProxyEnv.apply()` 直接改写 CPython `os.environ` 的 6 个代理键，
+      py 的 requests 立即生效；`Python.isStarted()` 未启动就跳过，由 `PyLoader.getSpider()`
+      首次加载时再应用。**不要**改成往 ext 塞 proxy 字段、也不要清 spider 缓存重建。
+    - js 走 quickjs `Connect` 里的 `OkHttp.client()`、播放走 `MediaSourceFactory` 的
+      `OkHttp.player()`，二者构建时都挂了同一个 selector，天然跟随总闸，不要另加分支。
+    - 第 3 根线（反射 jar 的 MenuProxy）只作实测漏网兜底，**不预置**，避免绑死混淆类名。
+    - 口径不变：亮暗仍由 per-site 老逻辑判定、切站重新算、json 写回规则不动。
+
+25. **脚本站点「工作区有、站点切换列表没有」的排查口径**：核心显示链
+    （`VodConfig.initSite` 的 `Site.objectFrom().distinct()`、`SiteAdapter.addAll` 的
+    `SiteBlockSetting.filter`、`SiteDialog`、`SiteAdapter`）在 main / OK影视+ / restore-upstream
+    三个分支逐字节相同，差异不在这里；不要在没对比 tree 的情况下去改这些类。
+    真正会丢站点的只有四处：① `Site.equals` 按 key 去重，多个空 / 重复 key 被吞成一条；
+    ② `Site.objectFrom` 的 catch 返回 `new Site()`（空 key）；
+    ③ `SiteBlockSetting.filter` 的 `site.isHide()` 与旧屏蔽记录；
+    ④ 当前 home 不是脚本配置。
+    统一在 `LocalScriptSource.buildJson()` 的 `parseSites()` 做「解析用副本规范化」：
+    key 唯一、name 兜底、hide=0、ext/proxy/api/homePage 统一字符串，
+    **磁盘 json 的 key / name / 次序 / sites_bac 一律不动**。同时把 in/out 条数写进日志，
+    实机可对照工作区与站点列表条数。
+    另：脚本管理第 5 行 `actionRow` 必须用 `weight=1` 左右撑满（固定 264dp 居中会让
+    两侧留白、段标签被压成「工…区」），`addLabel()` 不得设 ellipsize + 固定 34dp。
+    新增 url 也要走 `insertPos()`，否则 py/js/html/url 次序在手工录入时会破。
+
+26. **本轮三条交互改动的约束，别再退回旧写法**：
+    - html 站点切换：`HomeWebController.load()` 只要 `siteKey` 变化（或新站点没有
+      homePage）就必须先 `closePage()` ——停加载、`about:blank` 替换文档、清历史/
+      注入脚本、`onPause/onResume`，**不能只 `loadUrl(newUrl)` 复用、更不能只
+      `setVisibility(GONE)`**（那样旧 html 的 JS/媒体/网络请求还在跑）。不销毁
+      WebView：binding 仍持有 `homeWeb`，销毁后 `setVisibility` 会作用在废 view 上。
+    - 退出确认：`ExitConfirmDialog` 与其 layout/drawable/color 放 **main**，两变体共用；
+      mobile `HomeActivity.onBackInvoked()` 的最终分支必须弹确认，确认后才
+      `finish()` / 后台播放。**不要**在 leanback/java 再留同名类（duplicate class）。
+      手机宽度按 `screenWidth - 32dp` 封顶，TV 保持 420~560dp 原口径。
+    - 首页顶部一行：`menu_vod.xml` 用 20dp 图标副本（`*_s.xml`，只改尺寸不改图形），
+      `VodFragment.compactToolbar()` 固定 `minWidth=34dp / padding=4dp`，
+      `contentInsetEnd=4dp`、logo 32dp/marginEnd 8dp。按最小 320dp 屏算：
+      5×34=170dp + logo 40dp + 标题约 60dp ≈ 270dp ≤ toolbar 内容区 288dp。
+      **固定 dp，不做按屏比例的智能缩放**；不动 toolbar 高度（homeWeb marginTop 对齐它）。
+
+27. **本轮五条交互改动的约束，别退回旧写法**：
+    - 默认壁纸主题是「雾蓝极简」= `WALL_DAYLIGHT_MINIMAL`(25)。`Setting.getWall()` 的
+      Prefers 默认值、legacy 兜底、`nextDefaultWall()` 兜底 **三处**都要一致，
+      只改一处会漏。默认只对首次安装 / 清数据生效，已保存过 wall 的用户要手动切一次。
+    - 首页顶部：`menu_vod.xml` 常显 6 个（search/history/proxy/keep/menu_import_script/
+      more_actions；`web_home_fullscreen` 默认 invisible 不占位）。`compactToolbar()` 固定
+      **28dp 宽 / 2dp padding**（上一轮 34/4 空隙偏大），图标统一 20dp `*_s` 副本。
+      6×28=168 + logo 40 + 标题 55 ≈ 263dp ≤ 288dp。标题 `android:textSize="15sp"`
+      直接覆盖 `ToolbarTextAppearance` 的 20sp，不要改全局 style（别处也用）。
+    - 退出确认：`ExitConfirmDialog` 必须继承 **BaseAlertDialog**（项目现成元素），
+      用 `MaterialAlertDialogBuilder` 的标题 + 取消/确认按钮，**不要**自定义卡片布局
+      和 `focusableInTouchMode="true"` 的 TextView（那是「取消要点两下」的根因）。
+      默认焦点给 `android.R.id.button2`（取消），TV 上不误退出。
+      `dialog_exit_confirm.xml` 与 5 个 shape/selector/color 已删除，不要再搬回来。
+
+28. **实验室（lab）修复约束，别再退回上游 VodPlus 版的写法**：
+    - 自启必须在 `App.startBackgroundServices()` 里、`Server.get().start()` **之后**调
+      `LabAutoStart.start(this)`。放 onCreate 太早，命令里的 `{serverPort}` 会拿到 -1；
+      不调则 `auto_install` / `auto_execute` 全是死开关。
+    - 根目录**只认** `LabConfig.get().getRoot()`（默认 `/storage/emulated/0/WebHTV`，
+      与 `lab_template.json` 的 `root` 一致）。禁止再写死
+      `/storage/emulated/0/VodPlus/...`、`peekpro/...` 这些别的 app 的目录；
+      `syncVodPlusAssets()` 是空实现（本分支不带 assets/VodPlus）。
+    - **底部导航入口必须完整接线**（上轮曾误判「没有消费方」并切断，是错的）：
+      `menu_nav.xml` 的 `R.id.lab`（图标 `ic_nav_lab` 已是 48dp，与其余 nav 图标同款）
+      + `HomeActivity.setNavigation()` 里 `findItem(R.id.lab).setVisible(LabConfig.get().getNavEntry())`
+      + `onNavigationItemSelected` 里 `LabActivity.start(this); return false`
+      + `LabActivity` 设置弹窗的 `navEntryRow` 在手机端 VISIBLE、TV 端 GONE，并保存
+      `setNavEntry()`。lab_strings.xml 的 `lab_nav_entry_title/hint` 就是给这个开关用的。
+      改完开关要发 `ConfigEvent(COMMON)` 让首页 `setNavigation()` 重算。
+    - 实验室的「全局代理」(默认 7890，注入 rootfs 进程环境变量) 与 app 的
+      `OkProxySelector` 总闸 (默认 2080，管 OkHttp) 是两套独立体系，不要互相覆盖。
+    - `LabConfig.serverPort()` 依赖 `Server.startManage()` / `Proxy.getPort()`，
+      这条链路本分支完整，不要切断。
+
+29. **MT「签名状态校验不通过（v1+v2+v3 都在）」的真正根因与修法**：
+    - 不是缺 v1，也不是 META-INF 里混了第二套签名（那两个都有断言）。
+    - 恢复分支引入 jgit / commons-compress / zxing 等依赖后，APK 的 META-INF 下
+      会堆到 89~91 个条目：`androidx.*.*.version`、
+      `com/android/build/gradle/app-metadata.properties`、
+      `version-control-info.textproto`、`LICENSE`/`NOTICE` 等。这些条目**不被 v1
+      签名覆盖**，apksigner 逐条报 `not protected by signature`，我们曾把它加进
+      WARNING 白名单，MT 却据此判「签名状态校验不通过」。
+    - 修法在 `.github/workflows/android-release.yml` 的
+      `Clean META-INF metadata and realign before signing`：**签名前**删掉
+      META-INF 下除 `services/` 与签名三件套外的所有条目，然后**必须**紧跟
+      `zipalign -f -p 4`（`zip -d` 会重写 ZIP 破坏对齐）。顺序不能放到签名之后。
+    - `META-INF/services/` 是 ServiceLoader 配置，**不能删**；它由 MANIFEST 覆盖，
+      不会触发 not protected。
+    - 签名后的 `Verify JAR (v1) integrity like MT` 必须硬断言
+      「META-INF 除签名三件套与 services/ 外无残留」，并以 annotation 输出
+      `not protected by signature` 的条数作为实证。
+    - 别再靠「CI 全绿」推断「MT 通过」：CI 用的是 apksigner 口径，MT 更严。
+      另外同包名不同证书（例如 `com.fongmi.android.oktv` 撞已装官方版）也会让
+      MT 显示签名不一致、安装被系统拒绝，属设备侧冲突，不是 APK 签名坏了。

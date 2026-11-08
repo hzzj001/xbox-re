@@ -66,6 +66,9 @@ public class SettingPlayerActivity extends BaseActivity implements UaListener, B
         mBinding.tunnelText.setText(getSwitch(PlayerSetting.isTunnel()));
         setPlayerButtonsText();
         mBinding.adblockText.setText(getSwitch(Setting.isAdblock()));
+        mBinding.musicNotificationText.setText(getSwitch(PlayerSetting.isMusicNotification()));
+        mBinding.audioBookNotificationText.setText(getSwitch(PlayerSetting.isAudioBookNotification()));
+        mBinding.blurayMenuText.setText(getSwitch(PlayerSetting.isBlurayMenu()));
         mBinding.speedText.setText(format.format(PlayerSetting.getSpeed()));
         mBinding.bufferText.setText(String.valueOf(PlayerSetting.getBuffer()));
         mBinding.bufferBytesText.setText((bufferBytes = ResUtil.getStringArray(R.array.select_buffer_bytes))[PlayerSetting.getBufferBytesOption()]);
@@ -110,6 +113,12 @@ public class SettingPlayerActivity extends BaseActivity implements UaListener, B
         mBinding.tunnel.setOnClickListener(this::setTunnel);
         mBinding.caption.setOnClickListener(this::setCaption);
         mBinding.adblock.setOnClickListener(this::setAdblock);
+        mBinding.blurayMenu.setOnClickListener(view -> {
+            PlayerSetting.putBlurayMenu(!PlayerSetting.isBlurayMenu());
+            mBinding.blurayMenuText.setText(getSwitch(PlayerSetting.isBlurayMenu()));
+        });
+        mBinding.musicNotification.setOnClickListener(this::setMusicNotification);
+        mBinding.audioBookNotification.setOnClickListener(this::setAudioBookNotification);
         mBinding.caption.setOnLongClickListener(this::onCaption);
         mBinding.background.setOnClickListener(this::onBackground);
         mBinding.audioDecode.setOnClickListener(this::setAudioDecode);
@@ -325,6 +334,16 @@ public class SettingPlayerActivity extends BaseActivity implements UaListener, B
     private void setCaption(View view) {
         PlayerSetting.putCaption(!PlayerSetting.isCaption());
         mBinding.captionText.setText(caption[PlayerSetting.isCaption() ? 1 : 0]);
+    }
+
+    private void setMusicNotification(View view) {
+        PlayerSetting.putMusicNotification(!PlayerSetting.isMusicNotification());
+        mBinding.musicNotificationText.setText(getSwitch(PlayerSetting.isMusicNotification()));
+    }
+
+    private void setAudioBookNotification(View view) {
+        PlayerSetting.putAudioBookNotification(!PlayerSetting.isAudioBookNotification());
+        mBinding.audioBookNotificationText.setText(getSwitch(PlayerSetting.isAudioBookNotification()));
     }
 
     private void setAdblock(View view) {

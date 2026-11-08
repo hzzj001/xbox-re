@@ -17,9 +17,11 @@ import androidx.core.content.ContextCompat;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.BuildConfig;
 import com.fongmi.android.tv.bean.Update;
+import com.fongmi.android.tv.bean.ShortDramaConfig;
 import com.fongmi.android.tv.update.GithubProxy;
 import com.fongmi.android.tv.update.OciMirror;
 import com.fongmi.android.tv.update.UpdateSource;
+import com.fongmi.android.tv.utils.Util;
 import com.fongmi.android.tv.utils.WebViewUtil;
 import com.github.catvod.crawler.DebugLogStore;
 import com.github.catvod.crawler.SpiderDebug;
@@ -86,9 +88,9 @@ public class Setting {
     public static final int WALL_GREEN = 1;
 
     private static final int[] DEFAULT_WALLS = {
-            WALL_DREAM_PURPLE, WALL_LAVENDER_CRYSTAL, WALL_PASTEL_PRISM, WALL_ROSE_VEIL, WALL_VIOLET_SMOKE,
+            WALL_DAYLIGHT_MINIMAL, WALL_LAVENDER_CRYSTAL, WALL_PASTEL_PRISM, WALL_ROSE_VEIL, WALL_VIOLET_SMOKE,
             WALL_NEON_BERRY, WALL_MIDNIGHT_MOON, WALL_NEON_CYBER, WALL_DEEP_SPACE_GLASS, WALL_GRAPHITE_SMOKE,
-            WALL_DAYLIGHT_MINIMAL, WALL_SKY_MINT, WALL_POLAR_LIGHT_GLASS, WALL_GLASS_GRADIENT, WALL_CRYSTAL_SKY,
+            WALL_DREAM_PURPLE, WALL_SKY_MINT, WALL_POLAR_LIGHT_GLASS, WALL_GLASS_GRADIENT, WALL_CRYSTAL_SKY,
             WALL_BLUE_SILK, WALL_CYAN_CRYSTAL, WALL_MINT_GLACIER, WALL_AURORA_GLASS, WALL_DEEP_SEA,
             WALL_LIQUID_CHROME, WALL_FOREST_MIST, WALL_EMERALD_AURORA, WALL_WARM_MOON_GLASS, WALL_PEACH_DAWN,
             WALL_CHAMPAGNE_MIST, WALL_SUNSET_PRISM
@@ -151,8 +153,8 @@ public class Setting {
     }
 
     public static int getWall() {
-        int wall = Prefers.getInt("wall", WALL_DREAM_PURPLE);
-        return wall == WALL_GREEN || isLegacyColorWall(wall) ? WALL_DREAM_PURPLE : wall;
+        int wall = Prefers.getInt("wall", WALL_DAYLIGHT_MINIMAL);
+        return wall == WALL_GREEN || isLegacyColorWall(wall) ? WALL_DAYLIGHT_MINIMAL : wall;
     }
 
     public static void putWall(int wall) {
@@ -172,7 +174,7 @@ public class Setting {
         for (int i = 0; i < DEFAULT_WALLS.length; i++) {
             if (DEFAULT_WALLS[i] == wall) return DEFAULT_WALLS[(i + 1) % DEFAULT_WALLS.length];
         }
-        return WALL_DREAM_PURPLE;
+        return WALL_DAYLIGHT_MINIMAL;
     }
 
     public static int[] getDefaultWalls() {
@@ -218,7 +220,9 @@ public class Setting {
         if (wall == WALL_DREAM_PURPLE) return 0xFF7560CA;
         if (wall == WALL_SKY_MINT) return 0xFF6DA6B1;
         if (wall == WALL_FOREST_MIST) return 0xFF4E8750;
-        if (wall == WALL_DAYLIGHT_MINIMAL) return 0xFF7B8D9C;
+        // 雾蓝极简重调色：原 0xFF9DB6CC 偏亮偏蓝、白字发虚且晃眼；
+        // 与新的柔和雾蓝渐变壁纸主色对齐（低亮度、低饱和、带灰）。
+        if (wall == WALL_DAYLIGHT_MINIMAL) return 0xFF93A9BA;
         if (wall == WALL_DEEP_SEA) return 0xFF2F7290;
         if (wall == WALL_VIOLET_SMOKE) return 0xFF7C4BE2;
         if (wall == WALL_ROSE_VEIL) return 0xFFB27FAE;
@@ -737,4 +741,168 @@ public class Setting {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false;
         return new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:" + App.get().getPackageName())).resolveActivity(App.get().getPackageManager()) != null || new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).resolveActivity(App.get().getPackageManager()) != null;
     }
+    public static String getShortDramaConfig() {
+        return Prefers.getString("short_drama_config");
+    }
+
+    public static void putShortDramaConfig(String value) {
+        Prefers.put("short_drama_config", value);
+    }
+
+    public static boolean isShortDramaSiteEnabled(String key, String name) {
+        return ShortDramaConfig.objectFrom(getShortDramaConfig()).isSiteEnabled(key, name);
+    }
+
+
+    // ③ 个性设置（从上游按方法块 cherry-pick）
+    public static final int DETAIL_OPEN_DIRECT = 2;
+    public static final int DETAIL_OPEN_ENHANCED = 1;
+    public static final int DETAIL_OPEN_FUSION = 0;
+    public static final int DETAIL_OPEN_ORIGINAL_ENHANCED = 5;
+    public static final int DETAIL_OPEN_PLAYER = 4;
+    public static final int DETAIL_STYLE_CINEMA = 1;
+    public static final int DETAIL_STYLE_NATIVE = 2;
+    public static final int DETAIL_STYLE_PROFILE = 0;
+    public static final int LANGUAGE_SIMPLIFIED = 1;
+    public static final int GLOBAL_HISTORY_OFF = 0;
+    public static final int GLOBAL_HISTORY_AUTO = 1;
+    public static final int GLOBAL_HISTORY_SEARCH = 2;
+    public static final int LANGUAGE_TRADITIONAL = 2;
+    public static String getAiConfig() {
+    return Prefers.getString("ai_config");
+    }
+    public static String getAudioConfig() {
+    return Prefers.getString("audio_config");
+    }
+    public static int getFullscreenMenuKey() {
+    return Prefers.getInt("fullscreen_menu_key", 0);
+    }
+    public static int getGlobalHistoryMode() {
+    return clampGlobalHistoryMode(Prefers.getInt("global_history_mode", GLOBAL_HISTORY_OFF));
+    }
+    public static int getHomeMenuKey() {
+    int menuKey = Prefers.getInt("home_menu_key", 0);
+    return menuKey < 0 || menuKey > 9 ? 0 : menuKey;
+    }
+    public static int getInterfaceFailoverMode() {
+    return InterfaceFailoverPolicy.clampMode(Prefers.getInt("interface_failover_mode", InterfaceFailoverPolicy.DEFAULT_MODE));
+    }
+    public static int getSearchResultSort() {
+    return Prefers.getInt("search_result_sort", 0);
+    }
+    public static int getSearchThread() {
+    return clampSearchThread(Prefers.getInt("search_thread", 20));
+    }
+    public static int getSearchUi() {
+    return Prefers.getInt("search_ui", 1) == 0 ? 0 : 1;
+    }
+    public static boolean isAutoBackup() {
+    return Prefers.getBoolean("auto_backup", false);
+    }
+    public static boolean isEpisodeHistory() {
+    return Prefers.getBoolean("episode_history", true);
+    }
+    public static boolean isHomeHistory() {
+    return Prefers.getBoolean("home_history", true);
+    }
+    public static boolean isHomeSiteLock() {
+    return Prefers.getBoolean("home_site_lock", false);
+    }
+    public static boolean isHomeVodAutoLoad() {
+    return Prefers.getBoolean("home_vod_auto_load", true);
+    }
+    public static boolean isPlayBackToDetail() {
+    return Prefers.getBoolean("play_back_to_detail");
+    }
+    public static boolean isPlaybackOverlayEnabled() {
+    return Prefers.getBoolean("playback_overlay_enabled", true);
+    }
+    public static boolean isTouchOptimized() {
+    return Util.isLeanback() && Prefers.getBoolean("touch_optimized");
+    }
+    public static void putAutoBackup(boolean autoBackup) {
+    Prefers.put("auto_backup", autoBackup);
+    }
+    public static void putEpisodeHistory(boolean episodeHistory) {
+    Prefers.put("episode_history", episodeHistory);
+    }
+    public static void putFullscreenMenuKey(int menuKey) {
+    Prefers.put("fullscreen_menu_key", menuKey);
+    }
+    public static void putGlobalHistoryMode(int mode) {
+    Prefers.put("global_history_mode", clampGlobalHistoryMode(mode));
+    }
+    public static void putHomeHistory(boolean homeHistory) {
+    Prefers.put("home_history", homeHistory);
+    }
+    public static void putHomeMenuKey(int menuKey) {
+    Prefers.put("home_menu_key", menuKey);
+    }
+    public static void putHomeSiteLock(boolean homeSiteLock) {
+    Prefers.put("home_site_lock", homeSiteLock);
+    }
+    public static void putHomeVodAutoLoad(boolean autoLoad) {
+    Prefers.put("home_vod_auto_load", autoLoad);
+    }
+    public static void putInterfaceFailoverMode(int mode) {
+    int value = InterfaceFailoverPolicy.clampMode(mode);
+    Prefers.put("interface_failover_mode", value);
+    }
+    public static void putPlayBackToDetail(boolean backToDetail) {
+    Prefers.put("play_back_to_detail", backToDetail);
+    }
+    public static void putPlaybackOverlayEnabled(boolean enabled) {
+    Prefers.put("playback_overlay_enabled", enabled);
+    }
+    public static void putSearchResultSort(int sort) {
+    Prefers.put("search_result_sort", sort == 0 ? 0 : 1);
+    }
+    public static void putSearchThread(int thread) {
+    Prefers.put("search_thread", clampSearchThread(thread));
+    }
+    public static void putSearchUi(int ui) {
+    Prefers.put("search_ui", ui == 0 ? 0 : 1);
+    }
+    public static void putTouchOptimized(boolean enabled) {
+    Prefers.put("touch_optimized", enabled);
+    }
+
+    public static boolean isWebHomeThemeEnabled() {
+        return Prefers.getBoolean("web_home_theme_enabled");
+    }
+
+    public static void putWebHomeThemeEnabled(boolean enabled) {
+        Prefers.put("web_home_theme_enabled", enabled);
+    }
+
+    public static String getWebHomeThemeUrl() {
+        String legacy = "file:///android_asset/webhome/eclipse.html";
+        String current = Prefers.getString("web_home_theme_url", "file:///android_asset/webhome/theme.json");
+        if (!legacy.equals(current)) return current;
+        current = "file:///android_asset/webhome/theme.json";
+        Prefers.put("web_home_theme_url", current);
+        return current;
+    }
+
+    public static void putWebHomeThemeUrl(String url) {
+        Prefers.put("web_home_theme_url", url);
+    }
+
+    public static String getWebHomeThemeTrustedUrl() {
+        return Prefers.getString("web_home_theme_trusted_url");
+    }
+
+    public static void putWebHomeThemeTrustedUrl(String url) {
+        Prefers.put("web_home_theme_trusted_url", url);
+    }
+
+
+    private static int clampGlobalHistoryMode(int mode) {
+        return mode == GLOBAL_HISTORY_AUTO || mode == GLOBAL_HISTORY_SEARCH ? mode : GLOBAL_HISTORY_OFF;
+    }
+
+    private static int clampSearchThread(int thread) {
+        return Math.max(1, Math.min(thread, 100));
+    }
+
 }

@@ -19,6 +19,8 @@ import androidx.viewbinding.ViewBinding;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.api.config.LiveConfig;
+import com.fongmi.android.tv.lab.LabActivity;
+import com.fongmi.android.tv.lab.LabConfig;
 import com.fongmi.android.tv.api.config.VodConfig;
 import com.fongmi.android.tv.api.config.WallConfig;
 import com.fongmi.android.tv.bean.Config;
@@ -36,7 +38,9 @@ import com.fongmi.android.tv.server.Server;
 import com.fongmi.android.tv.service.PlaybackService;
 import com.fongmi.android.tv.setting.Setting;
 import com.fongmi.android.tv.ui.base.BaseActivity;
+import com.fongmi.android.tv.ui.dialog.ExitConfirmDialog;
 import com.fongmi.android.tv.ui.custom.FragmentStateManager;
+import com.fongmi.android.tv.ui.fragment.SettingPersonalFragment;
 import com.fongmi.android.tv.ui.fragment.SettingEnhanceFragment;
 import com.fongmi.android.tv.ui.fragment.SettingDanmakuFragment;
 import com.fongmi.android.tv.ui.fragment.SettingFragment;
@@ -144,6 +148,7 @@ public class HomeActivity extends BaseActivity implements NavigationBarView.OnIt
             case 2 -> SettingPlayerFragment.newInstance();
             case 3 -> SettingEnhanceFragment.newInstance();
             case 4 -> SettingDanmakuFragment.newInstance();
+            case 5 -> SettingPersonalFragment.newInstance();
             default -> null;
         });
         if (savedInstanceState == null) change(0);
@@ -192,6 +197,8 @@ public class HomeActivity extends BaseActivity implements NavigationBarView.OnIt
         mBinding.navigation.getMenu().findItem(R.id.vod).setVisible(true);
         mBinding.navigation.getMenu().findItem(R.id.setting).setVisible(true);
         mBinding.navigation.getMenu().findItem(R.id.live).setVisible(LiveConfig.hasUrl());
+        // 实验室底部入口由实验室设置里的「底部导航入口」开关控制；关时只从增强设置进入。
+        mBinding.navigation.getMenu().findItem(R.id.lab).setVisible(LabConfig.get().getNavEntry());
         syncNavigationSelection();
     }
 
@@ -244,7 +251,9 @@ public class HomeActivity extends BaseActivity implements NavigationBarView.OnIt
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRefreshEvent(RefreshEvent event) {
-        if (event.getType() == RefreshEvent.Type.THEME) recreate();
+        // 主题色/图标来自 DialogFragment 的回调：同步 recreate 会和 dismiss 事务撞车，
+        // 也会在 enableDynamicColor 尚未就绪时重建。post 到下一帧再重建，避免退出。
+        if (event.getType() == RefreshEvent.Type.THEME) App.post(this::recreate, 100);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -260,6 +269,7 @@ public class HomeActivity extends BaseActivity implements NavigationBarView.OnIt
         if (item.getItemId() == R.id.setting) return changeFragment(1);
         if (item.getItemId() == R.id.vod) return changeFragment(0);
         if (item.getItemId() == R.id.live) return openLive();
+        if (item.getItemId() == R.id.lab) { LabActivity.start(this); return false; }
         return false;
     }
 
@@ -419,14 +429,19 @@ public class HomeActivity extends BaseActivity implements NavigationBarView.OnIt
         } else if (returnVodFromEnhance && mManager.isVisible(3)) {
             returnVodFromEnhance = false;
             change(0);
-        } else if (mManager.isVisible(2) || mManager.isVisible(3) || mManager.isVisible(4)) {
+        } else if (mManager.isVisible(2) || mManager.isVisible(3) || mManager.isVisible(4) || mManager.isVisible(5)) {
             change(1);
         } else if (mManager.isVisible(1)) {
             change(0);
         } else if (mManager.canBack(0)) {
-            if (PlaybackService.isRunning()) Util.moveToBackground(this);
-            else super.onBackInvoked();
+            // 返回键最终会关掉 app，弹确认避免误操作（与 TV 端一致）
+            ExitConfirmDialog.create(this::confirmExitHome).show(this);
         }
+    }
+
+    private void confirmExitHome() {
+        if (PlaybackService.isRunning()) Util.moveToBackground(this);
+        else super.onBackInvoked();
     }
 
     @Override

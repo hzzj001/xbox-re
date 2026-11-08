@@ -1,6 +1,7 @@
 package com.fongmi.android.tv.utils;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -208,4 +209,16 @@ public class Util {
         StringBuilder sb = new StringBuilder();
         return format(sb, new Formatter(sb, Locale.getDefault()), timeMs);
     }
+
+    // ③ 个性设置「清除数据」入口（第九批补齐方法级缺口）
+    public static boolean resetApp() {
+        try {
+            ActivityManager manager = App.get().getSystemService(ActivityManager.class);
+            return manager != null && manager.clearApplicationUserData();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

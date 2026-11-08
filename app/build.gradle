@@ -15,7 +15,7 @@ def fastRelease = (project.findProperty('fastRelease') ?: 'false').toString().to
 def buildTimestamp = new Date().format('yyyyMMddHHmm', TimeZone.getTimeZone('Asia/Shanghai'))
 def buildTime = fastRelease ? "fast-${buildTimestamp}" : buildTimestamp
 def releaseTag = (System.getenv('WEBHTV_RELEASE_TAG') ?: '').replace('\\', '\\\\').replace('"', '\\"')
-def apkSuffix = (System.getenv('WEBHTV_APK_SUFFIX') ?: '').replaceAll('[^A-Za-z0-9._-]', '')
+def apkSuffix = ('-oktv' + (System.getenv('WEBHTV_APK_SUFFIX') ?: '')).replaceAll('[^A-Za-z0-9._-]', '')
 def gitRevision = 'unavailable'
 def gitState = 'unavailable'
 try {
@@ -33,7 +33,7 @@ android {
     ndkVersion "29.0.14206865"
 
     defaultConfig {
-        applicationId "com.fongmi.android.tv.xbox"
+        applicationId "com.fongmi.android.oktv"
         minSdk libs.versions.minSdk.get().toInteger()
         targetSdk libs.versions.targetSdk.get().toInteger()
         versionCode 560
@@ -148,6 +148,9 @@ dependencies {
     implementation project(':catvod')
     implementation project(':chaquo')
     implementation project(':quickjs')
+    implementation libs.jgit
+    implementation libs.commons.compress
+    implementation libs.tukaani.xz
     implementation libs.appcompat
     implementation libs.lifecycle.service
     implementation libs.media

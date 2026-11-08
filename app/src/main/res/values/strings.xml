@@ -1,7 +1,7 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
 
     <!-- App -->
-    <string name="app_name">TV xbox</string>
+    <string name="app_name">OK影视+</string>
 
     <!-- Live -->
     <string name="live_pass">Pass</string>
@@ -687,10 +687,10 @@
     <string name="setting_on">On</string>
 
     <!-- About -->
-    <string name="about_title">About xbox</string>
+    <string name="about_title">About OK影视+</string>
     <string name="about_free_badge">Lite</string>
     <string name="about_version">Version %1$s · %2$s/%3$s</string>
-    <string name="about_disclaimer">xbox is a stripped-down independent branch based on webhtv (package com.fongmi.android.tv.xbox) and can be installed alongside the original app.\n\nThis build does not provide online updates and will never check or install packages from the upstream project. Do not overwrite it with the upstream app. For new versions, use releases published by this project only.\n\nThe app itself is completely free and provides no paid services, video content, live sources, API sources, resource storage or content distribution. It is for technical learning, research and personal testing only; please uninstall it within 24 hours of downloading, installing or trying it. All consequences of continued use are borne by the user.\n\nThe app does not embed, sell or distribute any video resources, and is not responsible for interfaces, site sources, plugins, scripts, links, cloud-drive resources or third-party service content added by users. Users must comply with local laws and respect the rights of copyright owners and content providers.\n\nSelling, traffic diversion, paid maintenance, membership services, advertising monetisation, box preinstallation, TV box bundling or any other profit-making in the name of this app is strictly prohibited.\n\nIf you do not agree to the above, stop using and uninstall the app immediately.</string>
+    <string name="about_disclaimer">OK影视+ is a stripped-down independent branch based on webhtv (package com.fongmi.android.oktv) and can be installed alongside the original app.\n\nThis build does not provide online updates and will never check or install packages from the upstream project. Do not overwrite it with the upstream app. For new versions, use releases published by this project only.\n\nThe app itself is completely free and provides no paid services, video content, live sources, API sources, resource storage or content distribution. It is for technical learning, research and personal testing only; please uninstall it within 24 hours of downloading, installing or trying it. All consequences of continued use are borne by the user.\n\nThe app does not embed, sell or distribute any video resources, and is not responsible for interfaces, site sources, plugins, scripts, links, cloud-drive resources or third-party service content added by users. Users must comply with local laws and respect the rights of copyright owners and content providers.\n\nSelling, traffic diversion, paid maintenance, membership services, advertising monetisation, box preinstallation, TV box bundling or any other profit-making in the name of this app is strictly prohibited.\n\nIf you do not agree to the above, stop using and uninstall the app immediately.</string>
     <string name="about_acknowledge">I understand</string>
 
     <!-- Backup & Restore -->
@@ -1320,4 +1320,183 @@
     <string name="setting_default_proxy_hint">代理地址</string>
     <string name="toast_proxy_on">代理已开启</string>
     <string name="toast_proxy_off">代理已关闭</string>
+
+    <!-- 短剧源配置 -->
+    <string name="setting_short_drama_source">短剧源配置</string>
+    <string name="dialog_short_drama_add">添加</string>
+    <string name="dialog_short_drama_add_hint">添加关键词或站点…</string>
+    <string name="dialog_short_drama_disabled_label">已排除</string>
+    <string name="dialog_short_drama_enabled_label">启用规则</string>
+    <string name="dialog_short_drama_site_default">默认 [短]/短剧</string>
+    <string name="dialog_short_drama_site_manage">选择短剧源</string>
+    <string name="dialog_short_drama_site_disabled">已排除：%1$s</string>
+    <string name="git_cloud_account_count">账号 %1$d</string>
+
+    <!-- 全局 webhome 皮肤 -->
+    <string name="setting_web_home_theme">全局 WebHome 皮肤</string>
+    <string name="setting_web_home_theme_custom">自定义网址</string>
+    <string name="setting_web_home_theme_eclipse">Eclipse（内置）</string>
+    <string name="setting_web_home_theme_invalid_url">请输入 HTTPS WebHome 网址</string>
+    <string name="setting_web_home_theme_recovery">版本恢复</string>
+    <string name="setting_web_home_theme_recovery_failed">无法更新主题版本</string>
+    <string name="setting_web_home_theme_recovery_success">主题版本已更新</string>
+    <string name="setting_web_home_theme_recovery_unavailable">暂无可恢复的主题版本</string>
+    <string name="setting_web_home_theme_remote_warning_message">来自 %1$s 的远程主题会运行网站代码，并可请求媒体库数据或触发获准的应用操作。仅在信任提供方时继续。</string>
+    <string name="setting_web_home_theme_remote_warning_title">信任这个远程主题吗？</string>
+    <string name="setting_web_home_theme_retry_message">重试已回退的主题版本？如果首次加载再次失败，将自动恢复稳定版本。</string>
+    <string name="setting_web_home_theme_rollback_message">回退到上一个已验证的主题版本？当前版本会保留，之后仍可重试。</string>
+    <string name="setting_web_home_theme_url_hint">https://example.com/webhome.html</string>
+
+    <!-- 播放设置：后台通知与亮度开关 -->
+    <string name="player_audio_book_notification">有声书后台通知</string>
+    <string name="player_music_notification">音乐后台通知</string>
+    <string name="player_remember_brightness">记住播放亮度</string>
+
+    <!-- 远程托管 / 猫源设置中心 -->
+    <string name="cat_web_download">正在下载 %1$s 到「下载」目录</string>
+    <string name="cat_web_download_failed">下载失败</string>
+    <string name="cat_web_external">已用浏览器打开</string>
+    <string name="cat_web_failed">页面加载失败：%1$s</string>
+    <string name="cat_web_opening">正在打开设置中心</string>
+
+    <string name="detail_image_permission_denied">存储权限被拒绝</string>
+    <string name="detail_image_save_failed">图片保存失败</string>
+    <string name="detail_image_save_success">已保存至：%1$s</string>
+    <string name="detail_image_saving">正在保存图片...</string>
+    <string name="detail_person_photos">相册</string>
+    <string name="detail_work_global_searching">当前站源无结果，正在全局搜索 %1$s...</string>
+    <string name="detail_work_searching">正在当前站源搜索 %1$s...</string>
+
+
+
+    <!-- 从上游 webhtv 主分支原样搬回（不做英译中改写） -->
+    <string name="app_branding_icon_current">Default icon</string>
+    <string name="app_branding_icon_history">Original icon</string>
+    <string name="backup_permission_denied">Storage permission is required to back up or restore data</string>
+    <string name="dialog_reset_app">Reset app?</string>
+    <string name="dialog_reset_app_data">All app data will be reset, and app will be shutdown.</string>
+    <string name="group_rule_add">Add rule</string>
+    <string name="group_rule_ai_analyzing_message">Analyzing %1$d source names… Candidate rules will be validated locally before preview.</string>
+    <string name="group_rule_ai_analyzing_title">AI is identifying groups</string>
+    <string name="group_rule_ai_apply">Apply rules</string>
+    <string name="group_rule_ai_config_changed">The VOD configuration changed during analysis. Run identification again.</string>
+    <string name="group_rule_ai_config_incomplete">AI service configuration is incomplete. Complete endpoint, API key, and model in Enhance → AI configuration.</string>
+    <string name="group_rule_ai_current_interface">Current VOD configuration</string>
+    <string name="group_rule_ai_error_generic">AI identification failed.</string>
+    <string name="group_rule_ai_error_http">AI service returned HTTP %1$s.</string>
+    <string name="group_rule_ai_error_invalid_response">AI returned an invalid rule response. Try again.</string>
+    <string name="group_rule_ai_error_network">Unable to connect to the AI service.</string>
+    <string name="group_rule_ai_error_no_valid_rules">AI did not produce any safe and useful group rules.</string>
+    <string name="group_rule_ai_error_prompt_too_large">The custom group-rule prompt is too long. Shorten it in AI prompt configuration.</string>
+    <string name="group_rule_ai_error_timeout">AI identification timed out.</string>
+    <string name="group_rule_ai_error_too_many_sources">There are too many source names to analyze safely. Reduce the current VOD source list and try again.</string>
+    <string name="group_rule_ai_failed_title">AI identification failed</string>
+    <string name="group_rule_ai_groups_title">Extracted groups</string>
+    <string name="group_rule_ai_identify">AI identify</string>
+    <string name="group_rule_ai_label">AI · %1$s\n%2$s</string>
+    <string name="group_rule_ai_more_groups">…and %1$d more groups</string>
+    <string name="group_rule_ai_no_sources">The current VOD configuration has no visible source names to analyze.</string>
+    <string name="group_rule_ai_preview_note">Applying replaces only AI rules for the current VOD configuration. Built-in, interface, and manual rules are unchanged.</string>
+    <string name="group_rule_ai_preview_summary">%1$d sources · %2$d candidate rules · final coverage %3$d/%4$d (%5$d%%)</string>
+    <string name="group_rule_ai_preview_title">AI group preview</string>
+    <string name="group_rule_ai_privacy_message">Visible source names from the current VOD configuration will be sent to your configured AI service. Large lists may be split into multiple requests (up to 8). Source APIs, interface URLs, extension settings, playback history, and AI credentials are not included in the analysis content.</string>
+    <string name="group_rule_ai_privacy_title">Use AI group identification</string>
+    <string name="group_rule_ai_reidentify">AI re-identify</string>
+    <string name="group_rule_ai_retry">Retry</string>
+    <string name="group_rule_ai_rule_summary">%1$s\n%2$s\nMatched %3$d sources · %4$d groups · %5$d newly covered · %6$d in repeated groups</string>
+    <string name="group_rule_ai_rules_title">Generated rules</string>
+    <string name="group_rule_ai_saved">Saved %1$d AI group rules for “%2$s”</string>
+    <string name="group_rule_ai_select_required">Keep at least one candidate rule before applying.</string>
+    <string name="group_rule_ai_start">Start</string>
+    <string name="group_rule_ai_unmatched">Ungrouped · %1$d sources</string>
+    <string name="group_rule_delete">Delete</string>
+    <string name="group_rule_edit">Edit rule</string>
+    <string name="group_rule_edit_item">Edit · %1$s\n%2$s</string>
+    <string name="group_rule_empty_custom">No custom or interface rules</string>
+    <string name="group_rule_interface_item">Interface · %1$s\n%2$s</string>
+    <string name="group_rule_manage">Manage</string>
+    <string name="group_rule_name">Rule name</string>
+    <string name="group_rule_regex">Regular expression</string>
+    <string name="group_rule_regex_hint">Capture group 1 is used as the group name. Multiple enabled rules use OR matching.</string>
+    <string name="group_rule_regex_invalid">Invalid regular expression</string>
+    <string name="group_rule_regex_required">Regex is required</string>
+    <string name="home_buttons_selected">%1$d/%2$d enabled</string>
+    <string name="home_cast">Cast</string>
+    <string name="home_custom_csp">Site injection</string>
+    <string name="home_following">Following</string>
+    <string name="home_history_button">History</string>
+    <string name="reset_app_failed">Unable to reset app data. Please try again.</string>
+    <string-array name="select_fullscreen_menu_key">
+        <item>Control</item>
+        <item>Episodes</item>
+    </string-array>
+    <string-array name="select_global_history_mode">
+        <item>Off</item>
+        <item>Auto-match source</item>
+        <item>Choose source from search</item>
+    </string-array>
+    <string-array name="select_home_menu_key">
+        <item>Select dialog</item>
+        <item>Change site</item>
+        <item>Change config</item>
+        <item>Live page</item>
+        <item>History page</item>
+        <item>Search page</item>
+        <item>Push page</item>
+        <item>Cast page</item>
+        <item>Keep page</item>
+        <item>Setting page</item>
+    </string-array>
+    <string-array name="select_interface_failover_mode">
+        <item>Off</item>
+        <item>Auto</item>
+        <item>Confirm</item>
+    </string-array>
+    <string-array name="select_search_column">
+        <item>Auto</item>
+        <item>1 item</item>
+        <item>2 items</item>
+    </string-array>
+    <string-array name="select_search_result_sort">
+        <item>Dynamic (first returned first)</item>
+        <item>Fixed (by source order)</item>
+    </string-array>
+    <string-array name="select_search_ui">
+        <item>Landscape</item>
+        <item>Portrait</item>
+    </string-array>
+    <string-array name="select_site_column">
+        <item>Single row</item>
+        <item>Double row</item>
+    </string-array>
+    <string name="setting_app_branding">App icon</string>
+    <string name="setting_auto_backup">Automatic backup</string>
+    <string name="setting_episode_history">Remember episode progress</string>
+    <string name="setting_following">Following updates</string>
+    <string name="setting_fullscreen_menu_key">Fullscreen menu key</string>
+    <string name="setting_global_history">Global history resume</string>
+    <string name="setting_group_rule">Group rules</string>
+    <string name="setting_group_rule_summary">Enabled %1$d / %2$d</string>
+    <string name="setting_home_buttons">Home buttons</string>
+    <string name="setting_home_history">Home recent history</string>
+    <string name="setting_home_menu_key">Home menu key</string>
+    <string name="setting_home_site_lock">Home source lock</string>
+    <string name="setting_home_vod_auto_load">Auto-load VOD</string>
+    <string name="setting_interface_failover">VOD config failover</string>
+    <string name="setting_personal">Personal</string>
+    <string name="setting_play_back_to_detail">Return playback to detail</string>
+    <string name="setting_play_speed">Playback speed</string>
+    <string name="setting_playback_overlay">Playback menu overlay</string>
+    <string name="setting_reset_app">Reset app</string>
+    <string name="setting_search_column">Search results per row</string>
+    <string name="setting_search_result_sort">Search result mode</string>
+    <string name="setting_search_thread">Search threads</string>
+    <string name="setting_search_ui">Search layout</string>
+    <string name="setting_site_column">Site display mode</string>
+    <string name="setting_touch_optimization">Touch optimization</string>
+
+
+    <!-- 上游 webhtv 原样搬回，未做英译中改写 -->
+    <string name="app_branding_icon_select">Select icon</string>
+    <string name="home_buttons_reset">Reset</string>
 </resources>

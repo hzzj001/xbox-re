@@ -192,5 +192,23 @@
             </intent-filter>
         </receiver>
 
+
+        <!-- 个性设置 → APP 图标切换：上游搬入 AppBranding 时漏了 Manifest 声明。
+             TV 端同样只作显式组件用；桌面/Banner 入口仍由 HomeActivity 提供。 -->
+        <activity-alias
+            android:name=".ui.activity.HomeActivityCurrent"
+            android:targetActivity=".ui.activity.HomeActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity-alias
+            android:name=".ui.activity.HomeActivityHistory"
+            android:targetActivity=".ui.activity.HomeActivity"
+            android:icon="@drawable/ic_launcher_history"
+            android:label="@string/app_name"
+            android:enabled="false"
+            android:exported="true" />
     </application>
 </manifest>

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.viewbinding.ViewBinding;
 
+import com.fongmi.android.tv.lab.LabActivity;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.playback.ViewingRecordSyncStore;
 import com.fongmi.android.tv.remote.RemoteStore;
@@ -35,6 +36,11 @@ import com.fongmi.android.tv.utils.LoginStateSync;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.PermissionUtil;
 import com.fongmi.android.tv.web.ext.WebHomeExtensionRegistry;
+import com.fongmi.android.tv.bean.ShortDramaConfig;
+import com.fongmi.android.tv.ui.dialog.ShortDramaSourceDialog;
+import com.fongmi.android.tv.gitcloud.GitCloudAccountStore;
+import com.fongmi.android.tv.ui.dialog.GitCloudDialog;
+import com.fongmi.android.tv.ui.dialog.WebHomeThemeDialog;
 import com.github.catvod.crawler.SpiderDebug;
 
 public class SettingEnhanceActivity extends BaseActivity {
@@ -88,14 +94,19 @@ public class SettingEnhanceActivity extends BaseActivity {
             if (granted) CustomCspDialog.show(this, this::setText);
             else Notify.show(R.string.setting_custom_csp_permission_required);
         }));
+        mBinding.lab.setOnClickListener(view -> LabActivity.start(this));
         mBinding.loginState.setOnClickListener(view -> LoginStateLearnDialog.show(this, this::setText));
         mBinding.oneKeySync.setOnClickListener(v -> OneKeySyncDialog.create().show(this));
         mBinding.scriptManage.setOnClickListener(view -> ScriptManageDialog.show(this, this::setText));
+        mBinding.shortDramaSource.setOnClickListener(this::setShortDramaSource);
+        mBinding.gitCloud.setOnClickListener(view -> GitCloudDialog.show(this, this::setText));
+        mBinding.webHomeTheme.setOnClickListener(view -> WebHomeThemeDialog.show(this, this::setText));
     }
 
     private void reorderItems() {
         ViewGroup parent = (ViewGroup) mBinding.customCsp.getParent();
         View[] order = {
+                mBinding.lab,
                 mBinding.customCsp,
                 mBinding.webHomeExtension,
                 mBinding.remoteTrust,
@@ -109,17 +120,27 @@ public class SettingEnhanceActivity extends BaseActivity {
                 mBinding.playbackArtworkWall,
                 mBinding.driveCheck,
                 mBinding.siteHealthSort,
-                mBinding.debugLog,
+                mBinding.shortDramaSource,
+        mBinding.gitCloud,
+        mBinding.webHomeTheme,
+        mBinding.debugLog,
                 mBinding.playbackWebhook
         };
         for (View view : order) parent.removeView(view);
         for (View view : order) parent.addView(view);
     }
 
+    private void setShortDramaSource(View view) {
+        ShortDramaSourceDialog.create(this).onDismiss(this::setText).show();
+    }
+
     private void setText() {
         if (!canSetText()) return;
         safeSet("driveCheck", mBinding.driveCheckText, () -> getSwitch(Setting.isDriveCheck()));
         safeSet("debugLog", mBinding.debugLogText, () -> getSwitch(Setting.isDebugLog()));
+        safeSet("shortDramaSource", mBinding.shortDramaSourceText, () -> getSwitch(!ShortDramaConfig.objectFrom(Setting.getShortDramaConfig()).getDisplayRules().isEmpty()));
+        safeSet("gitCloud", mBinding.gitCloudText, () -> getString(R.string.git_cloud_account_count, GitCloudAccountStore.list().size()));
+        safeSet("webHomeTheme", mBinding.webHomeThemeText, () -> WebHomeThemeDialog.summary(this));
         safeSet("siteHealthSort", mBinding.siteHealthSortText, () -> getSwitch(Setting.isSiteHealthSort()));
         safeSet("webHomeExtension", mBinding.webHomeExtensionText, () -> {
             WebHomeExtensionRegistry.Snapshot webHomeExtension = WebHomeExtensionRegistry.get().snapshot();

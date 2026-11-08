@@ -495,4 +495,39 @@ public class PlayerSetting {
     public static boolean isOsdEnabled() {
         return isOsdTitle() || isOsdResolution() || isOsdTime() || isOsdProgress() || isOsdTraffic() || isOsdMini() || isOsdDiagnostics();
     }
+    private static final String KEY_REMEMBER_BRIGHTNESS = "player_remember_brightness";
+
+    public static boolean isAudioBookNotification() {
+        return Prefers.getBoolean("audio_book_notification", true);
+    }
+
+    public static void putAudioBookNotification(boolean notification) {
+        Prefers.put("audio_book_notification", notification);
+    }
+
+    public static boolean isBlurayMenu() {
+        return Prefers.getBoolean("playback_bluray_menu", false);
+    }
+
+    public static void putBlurayMenu(boolean enabled) {
+        Prefers.put("playback_bluray_menu", enabled);
+    }
+
+    public static boolean isMusicNotification() {
+        return Prefers.getBoolean("audio_music_notification", true);
+    }
+
+    public static void putMusicNotification(boolean notification) {
+        Prefers.put("audio_music_notification", notification);
+    }
+
+    public static boolean isRememberBrightness() {
+        return Prefers.getBoolean(KEY_REMEMBER_BRIGHTNESS, false);
+    }
+
+    public static void putRememberBrightness(boolean remember) {
+        Prefers.put(KEY_REMEMBER_BRIGHTNESS, remember);
+        Prefers.remove("player_brightness");
+    }
+
 }

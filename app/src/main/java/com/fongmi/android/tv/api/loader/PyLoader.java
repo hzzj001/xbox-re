@@ -3,7 +3,9 @@ package com.fongmi.android.tv.api.loader;
 import android.text.TextUtils;
 
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.setting.SiteFeature;
 import com.fongmi.chaquo.Loader;
+import com.fongmi.chaquo.ProxyEnv;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderNull;
 
@@ -34,6 +36,9 @@ public class PyLoader {
     public Spider getSpider(String key, String api, String ext) {
         return spiders.computeIfAbsent(key, k -> {
             try {
+                // Loader 构造时已启动 Python；按当前总闸刷新 os.environ，
+                // 让 requests / urllib 立即走代理，无需重载脚本、无需改 ext。
+                ProxyEnv.apply(SiteFeature.globalUrl());
                 Spider spider = loader.spider(api);
                 spider.siteKey = key;
                 spider.init(App.get(), normalizeExt(ext));

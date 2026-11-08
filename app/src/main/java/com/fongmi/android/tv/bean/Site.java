@@ -10,6 +10,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.fongmi.android.tv.setting.SiteNameStore;
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.Constant;
 import com.fongmi.android.tv.api.loader.BaseLoader;
@@ -519,4 +520,9 @@ public class Site implements Parcelable {
             return new Site[size];
         }
     };
+
+    public String getDisplayName() {
+        return SiteNameStore.getDisplayName(this);
+    }
+
 }

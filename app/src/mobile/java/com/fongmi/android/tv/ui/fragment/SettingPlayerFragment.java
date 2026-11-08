@@ -71,6 +71,10 @@ public class SettingPlayerFragment extends BaseFragment implements UaListener, B
         setPadLiveModeText();
         setPlayerButtonsText();
         mBinding.adblockText.setText(getSwitch(Setting.isAdblock()));
+        mBinding.rememberBrightnessText.setText(getSwitch(PlayerSetting.isRememberBrightness()));
+        mBinding.musicNotificationText.setText(getSwitch(PlayerSetting.isMusicNotification()));
+        mBinding.audioBookNotificationText.setText(getSwitch(PlayerSetting.isAudioBookNotification()));
+        mBinding.blurayMenuText.setText(getSwitch(PlayerSetting.isBlurayMenu()));
         mBinding.speedText.setText(format.format(PlayerSetting.getSpeed()));
         mBinding.bufferText.setText(String.valueOf(PlayerSetting.getBuffer()));
         mBinding.bufferBytesText.setText((bufferBytes = ResUtil.getStringArray(R.array.select_buffer_bytes))[PlayerSetting.getBufferBytesOption()]);
@@ -117,6 +121,13 @@ public class SettingPlayerFragment extends BaseFragment implements UaListener, B
         mBinding.tunnel.setOnClickListener(this::setTunnel);
         mBinding.caption.setOnClickListener(this::setCaption);
         mBinding.adblock.setOnClickListener(this::setAdblock);
+        mBinding.blurayMenu.setOnClickListener(view -> {
+            PlayerSetting.putBlurayMenu(!PlayerSetting.isBlurayMenu());
+            mBinding.blurayMenuText.setText(getSwitch(PlayerSetting.isBlurayMenu()));
+        });
+        mBinding.rememberBrightness.setOnClickListener(this::setRememberBrightness);
+        mBinding.musicNotification.setOnClickListener(this::setMusicNotification);
+        mBinding.audioBookNotification.setOnClickListener(this::setAudioBookNotification);
         mBinding.caption.setOnLongClickListener(this::onCaption);
         mBinding.background.setOnClickListener(this::onBackground);
         mBinding.audioDecode.setOnClickListener(this::setAudioDecode);
@@ -389,6 +400,21 @@ public class SettingPlayerFragment extends BaseFragment implements UaListener, B
     private boolean onCaption(View view) {
         if (PlayerSetting.isCaption()) startActivity(new Intent(Settings.ACTION_CAPTIONING_SETTINGS));
         return PlayerSetting.isCaption();
+    }
+
+    private void setRememberBrightness(View view) {
+        PlayerSetting.putRememberBrightness(!PlayerSetting.isRememberBrightness());
+        mBinding.rememberBrightnessText.setText(getSwitch(PlayerSetting.isRememberBrightness()));
+    }
+
+    private void setMusicNotification(View view) {
+        PlayerSetting.putMusicNotification(!PlayerSetting.isMusicNotification());
+        mBinding.musicNotificationText.setText(getSwitch(PlayerSetting.isMusicNotification()));
+    }
+
+    private void setAudioBookNotification(View view) {
+        PlayerSetting.putAudioBookNotification(!PlayerSetting.isAudioBookNotification());
+        mBinding.audioBookNotificationText.setText(getSwitch(PlayerSetting.isAudioBookNotification()));
     }
 
     private void setAdblock(View view) {

@@ -30,8 +30,11 @@ public final class AboutDialog {
         Dialog dialog = LightDialog.create(activity, null, binding.getRoot());
         binding.confirm.setOnClickListener(v -> dialog.dismiss());
         dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
+        // 窗口尺寸必须在 show 之前定好；同时覆盖 LightDialog 的 onShow 幂等回调，
+        // 否则首帧先按默认尺寸居中、随后被改成本页尺寸，整窗会「闪移」一下。
         configureWindow(activity, dialog);
+        dialog.setOnShowListener(d -> configureWindow(activity, dialog));
+        dialog.show();
         binding.confirm.requestFocus();
     }
 

@@ -47,6 +47,7 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
     private static final String TAG = CustomWebView.class.getSimpleName();
 
     private static final Pattern PLAYER = Pattern.compile("player.*https?://");
+    private Pattern sniff;
     private static final String BLANK = "about:blank";
     private static final int MAX_URLS = 5;
 
@@ -217,9 +218,16 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
         return false;
     }
 
+    /** 指定自定义嗅探正则，需在 start() 之前调用。 */
+    public CustomWebView sniff(Pattern pattern) {
+        this.sniff = pattern;
+        return this;
+    }
+
     private boolean isVideoFormat(String url) {
         try {
             if (!detect && url.equals(this.url)) return false;
+            if (sniff != null) return sniff.matcher(url).find();
             Spider spider = VodConfig.get().getSite(key).spider();
             if (spider.manualVideoCheck()) return spider.isVideoFormat(url);
             return Sniffer.isVideoFormat(url);

@@ -92,6 +92,8 @@ public class ConfigDialog extends BaseAlertDialog {
     @Override
     protected void initEvent() {
         binding.negative.setOnClickListener(v -> dismiss());
+        // 导入脚本只属于点播接口；直播 / 壁纸接口弹窗不显示该按钮
+        binding.importScript.setVisibility(type == 0 ? View.VISIBLE : View.GONE);
         binding.importScript.setOnClickListener(v -> onImportScript());
         binding.positive.setOnClickListener(v -> onPositive());
         binding.choose.setEndIconOnClickListener(this::onChoose);

@@ -4,6 +4,8 @@ python = "17.0.0"
 minSdk = "24"
 targetSdk = "28"
 compileSdk = "37"
+commonsCompress = "1.27.1"
+tukaaniXz = "1.12"
 
 annotation = "1.10.0"
 appcompat = "1.7.1"
@@ -52,6 +54,7 @@ simpleXml = "2.7.1"
 smbj = "0.14.0"
 textdrawable = "1.0.3"
 zxingCore = "3.5.4"
+jgit = "6.10.0.202406032230-r"
 
 [libraries]
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
@@ -70,6 +73,8 @@ startup = { group = "androidx.startup", name = "startup-runtime", version.ref = 
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
+commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "commonsCompress" }
+tukaani-xz = { group = "org.tukaani", name = "xz", version.ref = "tukaaniXz" }
 
 android-gif-drawable = { group = "pl.droidsonroids.gif", name = "android-gif-drawable", version.ref = "androidGifDrawable" }
 androidautosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidautosize" }
@@ -129,6 +134,7 @@ simple-xml = { group = "org.simpleframework", name = "simple-xml", version.ref =
 smbj = { group = "com.hierynomus", name = "smbj", version.ref = "smbj" }
 textdrawable = { group = "com.github.jahirfiquitiva", name = "TextDrawable", version.ref = "textdrawable" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCore" }
+jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

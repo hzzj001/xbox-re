@@ -70,6 +70,7 @@ public class HomeWebController {
     private String documentStartKey;
     private String defaultUserAgent;
     private String homePage;
+    private String siteKey;
     private String lastPageUrl;
     private WebHomeRawAdapter rawAdapter;
     private WebHomeViewport viewport = WebHomeViewport.EMPTY;
@@ -127,16 +128,24 @@ public class HomeWebController {
     }
 
     public boolean load(Site site, boolean force) {
-        if (!site.hasHomePage()) return false;
+        if (!site.hasHomePage()) {
+            // 切到非 html 站点：旧的 html 页面也必须停，不能只是把 WebView 设成 GONE
+            closePage();
+            return false;
+        }
         if (Setting.isWebHomeFullscreen()) listener.applyDefaultChrome(site);
         else listener.setChrome(normalChrome());
         Server.get().start();
         String url = getHomePage(site);
-        boolean reload = force || !url.equals(homePage);
+        boolean switched = !TextUtils.equals(siteKey, site.getKey());
+        // 换到另一个 html 脚本：先把前一个页面彻底关掉，再加载新的
+        if (switched) closePage();
         this.site = site;
+        siteKey = site.getKey();
         rawAdapter = WebHomeRawAdapter.create(url, site.getHeader());
         prepareExtensions(site);
         registerDocumentStartScripts();
+        boolean reload = force || switched || TextUtils.isEmpty(homePage) || !url.equals(homePage);
         if (reload) {
             sdkReady = false;
             lastViewportKey = "";
@@ -422,9 +431,38 @@ public class HomeWebController {
         });
     }
 
-    public void destroy() {
+    /**
+     * 彻底关闭当前 html 页面：停加载 / 通知页面暂停 / 清注入脚本与历史 /
+     * 换 about:blank 替换文档（JS 定时器、媒体、网络请求随之终止）/ 暂停再恢复渲染。
+     * 不清磁盘缓存、不销毁 WebView（binding 仍持有它），所以切回来能立刻复用。
+     * 幂等：没有活动页面时直接返回。
+     */
+    public void closePage() {
+        if (TextUtils.isEmpty(homePage) && TextUtils.isEmpty(siteKey)) return;
+        SpiderDebug.log("webhome-webview", "close page site=%s url=%s", siteKey, homePage);
+        loadToken++;
+        dispatchLifecycle("fmpause", "{time:" + System.currentTimeMillis() + "}");
         removeDocumentStartScripts();
+        webView.stopLoading();
+        webView.clearHistory();
+        webView.clearCache(false);
+        webView.loadUrl("about:blank");
+        webView.onPause();
+        webView.onResume();
+        webView.resumeTimers();
+        hide();
+        homePage = null;
+        lastPageUrl = null;
         rawAdapter = null;
+        sdkReady = false;
+        injectedExtensions.clear();
+        lastViewportKey = "";
+        siteKey = null;
+        site = null;
+    }
+
+    public void destroy() {
+        closePage();
         webView.stopLoading();
         webView.destroy();
         if (debugTools) WebView.setWebContentsDebuggingEnabled(false);

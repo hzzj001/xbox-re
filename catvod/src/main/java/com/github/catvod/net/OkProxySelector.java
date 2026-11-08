@@ -33,6 +33,15 @@ public class OkProxySelector extends ProxySelector {
         Authenticator.setDefault(new ProxyAuthenticator(this));
     }
 
+    /**
+     * 升格为整个进程的默认 ProxySelector：jar / WebView 拦截 / js 桥里所有
+     * 未显式指定 Proxy 的 HttpURLConnection（openConnection(null)）也会命中 global。
+     * system 字段在构造时已保存系统原默认，fallback() 走它，不会递归回自己。
+     */
+    public synchronized void installAsDefault() {
+        if (ProxySelector.getDefault() != this) ProxySelector.setDefault(this);
+    }
+
     public synchronized void addAll(List<Proxy> items) {
         if (items.isEmpty()) return;
         Authenticator.setDefault(new ProxyAuthenticator(this));
@@ -84,8 +93,8 @@ public class OkProxySelector extends ProxySelector {
     }
 
     public synchronized void clear() {
-        Authenticator.setDefault(null);
         proxy.clear();
+        // 认证器常驻：selector 已是进程默认，clear() 不再清掉 ProxyAuthenticator
         // global 不清：页面销毁 / 重建时总闸状态保持，由 App.onCreate 与 onResume 重算
         SpiderDebug.log("proxy", "selector clear");
     }

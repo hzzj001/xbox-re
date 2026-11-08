@@ -20,6 +20,7 @@ import com.fongmi.android.tv.player.PlaybackRecoveryMonitor;
 import com.fongmi.android.tv.remote.RemoteAgent;
 import com.fongmi.android.tv.setting.ProxySetting;
 import com.fongmi.android.tv.setting.SiteFeature;
+import com.fongmi.android.tv.lab.LabAutoStart;
 import com.fongmi.android.tv.setting.Setting;
 import com.fongmi.android.tv.utils.DanmakuSearchListFocusFixer;
 import com.fongmi.android.tv.utils.NsdDeviceDiscovery;
@@ -29,6 +30,7 @@ import com.fongmi.hook.Hook;
 import com.github.catvod.crawler.DebugLogStore;
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.Init;
+import com.github.catvod.net.OkHttp;
 import com.google.gson.Gson;
 
 public class App extends Application implements Application.ActivityLifecycleCallbacks {
@@ -108,6 +110,9 @@ public class App extends Application implements Application.ActivityLifecycleCal
         }
         Notify.createChannel();
         ProxySetting.apply();
+        // 把总闸升格为整个进程的默认代理选择器：jar / WebView 拦截 / js 桥里所有
+        // 未显式指定 Proxy 的 HttpURLConnection 都会跟着图标亮暗走。
+        OkHttp.selector().installAsDefault();
         // 恢复总闸；此时 VodConfig 尚未加载会先置为关，配置解析完由 setHome / onResume 按站点重算
         SiteFeature.apply();
         DanmakuSearchListFocusFixer.start();
@@ -130,6 +135,9 @@ public class App extends Application implements Application.ActivityLifecycleCal
     private void startBackgroundServices() {
         SpiderDebug.log("startup", "background services start cost=%sms", System.currentTimeMillis() - time);
         Server.get().start();
+        // 实验室自启：Server 已起来，命令里的 {serverPort} 才能拿到真实端口。
+        // auto_install / auto_execute 由这里驱动，否则那两个开关永远不生效。
+        LabAutoStart.start(this);
         PlaybackRemoteSyncer.start();
         RemoteAgent.get().start();
         NsdDeviceDiscovery.register();

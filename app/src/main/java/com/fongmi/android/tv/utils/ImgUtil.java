@@ -47,6 +47,14 @@ public class ImgUtil {
         }
     }
 
+    public static void logo(ImageView view, String logo) {
+        try {
+            Glide.with(view).load(UrlUtil.convert(logo)).circleCrop().override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).error(R.drawable.ic_logo).into(view);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void load(String url, CustomTarget<Bitmap> target) {
         try {
             Glide.with(App.get()).asBitmap().load(getUrl(url)).override(ResUtil.dp2px(96), ResUtil.dp2px(96)).error(R.drawable.artwork).into(target);

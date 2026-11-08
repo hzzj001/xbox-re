@@ -1,7 +1,7 @@
 <resources xmlns:xliff="http://schemas.android.com/apk/res-auto">
 
     <!-- App -->
-    <string name="app_name">影视xbox</string>
+    <string name="app_name">OK影视+</string>
 
     <!-- Live -->
     <string name="live_pass">密码</string>
@@ -685,10 +685,10 @@
     <string name="setting_on">开</string>
 
     <!-- About -->
-    <string name="about_title">关于 xbox</string>
+    <string name="about_title">关于 OK影视+</string>
     <string name="about_free_badge">精简版</string>
     <string name="about_version">版本 %1$s · %2$s/%3$s</string>
-    <string name="about_disclaimer">xbox 是基于 webhtv 二次开发后精简的独立分支，包名 com.fongmi.android.tv.xbox，可与原版共存安装。\n\n本版本不提供在线更新，也不会检查或安装上游项目的安装包；请勿使用上游仓库的同名应用覆盖安装。如需新版本，请以本项目发布的版本为准。\n\n软件本体完全免费，不提供任何付费服务、影视内容、直播源、接口源、资源存储或内容分发能力。本软件仅供技术学习、研究和个人测试使用，请在下载、安装或试用后 24 小时内自行卸载；继续使用所产生的一切行为及后果由使用者自行承担。\n\n本软件不内置、不售卖、不传播任何影视资源，不对用户自行添加的接口、站源、插件、脚本、链接、网盘资源或第三方服务内容负责。使用者应遵守所在地法律法规，尊重版权方和内容提供方的合法权益，不得用于侵权、盗版或传播非法内容。\n\n严禁任何个人或组织以本软件名义进行售卖、引流、收费维护、会员服务、广告变现、盒子预装、电视盒子捆绑销售或其他获益行为。\n\n如你不同意以上声明，请立即停止使用并卸载本软件。</string>
+    <string name="about_disclaimer">OK影视+ 是基于 webhtv 二次开发后精简的独立分支，包名 com.fongmi.android.oktv，可与原版共存安装。\n\n本版本不提供在线更新，也不会检查或安装上游项目的安装包；请勿使用上游仓库的同名应用覆盖安装。如需新版本，请以本项目发布的版本为准。\n\n软件本体完全免费，不提供任何付费服务、影视内容、直播源、接口源、资源存储或内容分发能力。本软件仅供技术学习、研究和个人测试使用，请在下载、安装或试用后 24 小时内自行卸载；继续使用所产生的一切行为及后果由使用者自行承担。\n\n本软件不内置、不售卖、不传播任何影视资源，不对用户自行添加的接口、站源、插件、脚本、链接、网盘资源或第三方服务内容负责。使用者应遵守所在地法律法规，尊重版权方和内容提供方的合法权益，不得用于侵权、盗版或传播非法内容。\n\n严禁任何个人或组织以本软件名义进行售卖、引流、收费维护、会员服务、广告变现、盒子预装、电视盒子捆绑销售或其他获益行为。\n\n如你不同意以上声明，请立即停止使用并卸载本软件。</string>
     <string name="about_acknowledge">我已知悉</string>
 
     <!-- Backup & Restore -->
@@ -1297,4 +1297,183 @@
     <string name="setting_default_proxy_hint">代理地址</string>
     <string name="toast_proxy_on">代理已开启</string>
     <string name="toast_proxy_off">代理已关闭</string>
+
+    <!-- 短剧源配置 -->
+    <string name="setting_short_drama_source">短剧源配置</string>
+    <string name="dialog_short_drama_add">添加</string>
+    <string name="dialog_short_drama_add_hint">添加关键词或站点…</string>
+    <string name="dialog_short_drama_disabled_label">已排除</string>
+    <string name="dialog_short_drama_enabled_label">启用规则</string>
+    <string name="dialog_short_drama_site_default">默认 [短]/短剧</string>
+    <string name="dialog_short_drama_site_manage">选择短剧源</string>
+    <string name="dialog_short_drama_site_disabled">已排除：%1$s</string>
+    <string name="git_cloud_account_count">账号 %1$d</string>
+
+    <!-- 全局 webhome 皮肤 -->
+    <string name="setting_web_home_theme">全局 WebHome 皮肤</string>
+    <string name="setting_web_home_theme_custom">自定义网址</string>
+    <string name="setting_web_home_theme_eclipse">Eclipse（内置）</string>
+    <string name="setting_web_home_theme_invalid_url">请输入 HTTPS WebHome 网址</string>
+    <string name="setting_web_home_theme_recovery">版本恢复</string>
+    <string name="setting_web_home_theme_recovery_failed">无法更新主题版本</string>
+    <string name="setting_web_home_theme_recovery_success">主题版本已更新</string>
+    <string name="setting_web_home_theme_recovery_unavailable">暂无可恢复的主题版本</string>
+    <string name="setting_web_home_theme_remote_warning_message">来自 %1$s 的远程主题会运行网站代码，并可请求媒体库数据或触发获准的应用操作。仅在信任提供方时继续。</string>
+    <string name="setting_web_home_theme_remote_warning_title">信任这个远程主题吗？</string>
+    <string name="setting_web_home_theme_retry_message">重试已回退的主题版本？如果首次加载再次失败，将自动恢复稳定版本。</string>
+    <string name="setting_web_home_theme_rollback_message">回退到上一个已验证的主题版本？当前版本会保留，之后仍可重试。</string>
+    <string name="setting_web_home_theme_url_hint">https://example.com/webhome.html</string>
+
+    <!-- 播放设置：后台通知与亮度开关 -->
+    <string name="player_audio_book_notification">有声书后台通知</string>
+    <string name="player_music_notification">音乐后台通知</string>
+    <string name="player_remember_brightness">记住播放亮度</string>
+
+    <!-- 远程托管 / 猫源设置中心 -->
+    <string name="cat_web_download">正在下载 %1$s 到「下载」目录</string>
+    <string name="cat_web_download_failed">下载失败</string>
+    <string name="cat_web_external">已用浏览器打开</string>
+    <string name="cat_web_failed">页面加载失败：%1$s</string>
+    <string name="cat_web_opening">正在打开设置中心</string>
+
+    <string name="detail_image_permission_denied">存储权限被拒绝</string>
+    <string name="detail_image_save_failed">图片保存失败</string>
+    <string name="detail_image_save_success">已保存至：%1$s</string>
+    <string name="detail_image_saving">正在保存图片...</string>
+    <string name="detail_person_photos">相册</string>
+    <string name="detail_work_global_searching">当前站源无结果，正在全局搜索 %1$s...</string>
+    <string name="detail_work_searching">正在当前站源搜索 %1$s...</string>
+
+
+
+    <!-- 从上游 webhtv 主分支原样搬回（不做英译中改写） -->
+    <string name="app_branding_icon_current">默认图标</string>
+    <string name="app_branding_icon_history">原版图标</string>
+    <string name="backup_permission_denied">需要存储权限才能备份或恢复数据</string>
+    <string name="dialog_reset_app">重置App?</string>
+    <string name="dialog_reset_app_data">所有数据将会被重置，App即将被关闭.</string>
+    <string name="group_rule_add">新增规则</string>
+    <string name="group_rule_ai_analyzing_message">正在分析 %1$d 个源名称…候选规则会先在本地验证，再进入预览。</string>
+    <string name="group_rule_ai_analyzing_title">AI 正在识别分组</string>
+    <string name="group_rule_ai_apply">应用规则</string>
+    <string name="group_rule_ai_config_changed">识别期间点播接口已切换，请重新识别。</string>
+    <string name="group_rule_ai_config_incomplete">AI 服务配置不完整，请先到“增强功能 → AI 通用配置”补全端点、API key 和模型。</string>
+    <string name="group_rule_ai_current_interface">当前点播接口</string>
+    <string name="group_rule_ai_error_generic">AI 识别失败。</string>
+    <string name="group_rule_ai_error_http">AI 服务返回 HTTP %1$s。</string>
+    <string name="group_rule_ai_error_invalid_response">AI 返回的规则内容无效，可以点击重试。</string>
+    <string name="group_rule_ai_error_network">无法连接 AI 服务。</string>
+    <string name="group_rule_ai_error_no_valid_rules">AI 没有生成安全且有效的分组规则。</string>
+    <string name="group_rule_ai_error_prompt_too_large">自定义分组规则提示词过长，请在 AI 提示词配置中精简。</string>
+    <string name="group_rule_ai_error_timeout">AI 识别请求超时。</string>
+    <string name="group_rule_ai_error_too_many_sources">源名称数量过多，无法在安全请求范围内完成分析，请精简当前接口后重试。</string>
+    <string name="group_rule_ai_failed_title">AI 识别失败</string>
+    <string name="group_rule_ai_groups_title">提取后的分组</string>
+    <string name="group_rule_ai_identify">AI 识别</string>
+    <string name="group_rule_ai_label">AI · %1$s\n%2$s</string>
+    <string name="group_rule_ai_more_groups">……还有 %1$d 个分组</string>
+    <string name="group_rule_ai_no_sources">当前点播接口没有可分析的可见源名称。</string>
+    <string name="group_rule_ai_preview_note">应用后只替换当前点播接口的 AI 规则，内置规则、接口规则和手动规则不会改变。</string>
+    <string name="group_rule_ai_preview_summary">%1$d 个源 · %2$d 条候选规则 · 最终覆盖 %3$d/%4$d（%5$d%%）</string>
+    <string name="group_rule_ai_preview_title">AI 分组预览</string>
+    <string name="group_rule_ai_privacy_message">将把当前点播接口中可见的源名称发送到你配置的 AI 服务；源较多时可能自动拆分为多次请求（最多 8 次）。接口地址、源 API、扩展配置、播放记录和 AI 密钥不会写入分析内容。</string>
+    <string name="group_rule_ai_privacy_title">使用 AI 识别分组</string>
+    <string name="group_rule_ai_reidentify">AI 重识别</string>
+    <string name="group_rule_ai_retry">重试</string>
+    <string name="group_rule_ai_rule_summary">%1$s\n%2$s\n命中 %3$d 个源 · %4$d 个分组 · 新增覆盖 %5$d 个 · 稳定覆盖 %6$d 个</string>
+    <string name="group_rule_ai_rules_title">生成的规则</string>
+    <string name="group_rule_ai_saved">已为“%2$s”保存 %1$d 条 AI 分组规则</string>
+    <string name="group_rule_ai_select_required">请至少保留一条候选规则后再应用。</string>
+    <string name="group_rule_ai_start">开始识别</string>
+    <string name="group_rule_ai_unmatched">未分组 · %1$d 个源</string>
+    <string name="group_rule_delete">删除</string>
+    <string name="group_rule_edit">编辑规则</string>
+    <string name="group_rule_edit_item">编辑 · %1$s\n%2$s</string>
+    <string name="group_rule_empty_custom">暂无自定义或接口规则</string>
+    <string name="group_rule_interface_item">接口 · %1$s\n%2$s</string>
+    <string name="group_rule_manage">管理</string>
+    <string name="group_rule_name">规则名称</string>
+    <string name="group_rule_regex">正则表达式</string>
+    <string name="group_rule_regex_hint">第 1 个捕获组作为分组名。多个已启用规则为或关系，命中即独立分组。</string>
+    <string name="group_rule_regex_invalid">正则表达式无效</string>
+    <string name="group_rule_regex_required">请填写正则表达式</string>
+    <string name="home_buttons_selected">已启用 %1$d/%2$d</string>
+    <string name="home_cast">投屏</string>
+    <string name="home_custom_csp">站点注入</string>
+    <string name="home_following">追更</string>
+    <string name="home_history_button">历史</string>
+    <string name="reset_app_failed">重置失败，请重试。</string>
+    <string-array name="select_fullscreen_menu_key">
+        <item>控制栏</item>
+        <item>选集</item>
+    </string-array>
+    <string-array name="select_global_history_mode">
+        <item>关闭</item>
+        <item>自动匹配播放源</item>
+        <item>搜索后选择播放源</item>
+    </string-array>
+    <string-array name="select_home_menu_key">
+        <item>选项弹窗</item>
+        <item>切换站源</item>
+        <item>切换线路</item>
+        <item>直播页面</item>
+        <item>历史页面</item>
+        <item>搜索页面</item>
+        <item>推送页面</item>
+        <item>投屏页面</item>
+        <item>收藏页面</item>
+        <item>设置页面</item>
+    </string-array>
+    <string-array name="select_interface_failover_mode">
+        <item>关闭</item>
+        <item>自动容灾</item>
+        <item>手动确认</item>
+    </string-array>
+    <string-array name="select_search_column">
+        <item>自适应</item>
+        <item>1个</item>
+        <item>2个</item>
+    </string-array>
+    <string-array name="select_search_result_sort">
+        <item>动态模式（谁快谁在前）</item>
+        <item>固定模式（按配置顺序）</item>
+    </string-array>
+    <string-array name="select_search_ui">
+        <item>横屏</item>
+        <item>竖屏</item>
+    </string-array>
+    <string-array name="select_site_column">
+        <item>单行</item>
+        <item>双行</item>
+    </string-array>
+    <string name="setting_app_branding">APP 图标</string>
+    <string name="setting_auto_backup">自动备份</string>
+    <string name="setting_episode_history">记录分集进度</string>
+    <string name="setting_following">追更更新</string>
+    <string name="setting_fullscreen_menu_key">全屏菜单键</string>
+    <string name="setting_global_history">全局历史续播</string>
+    <string name="setting_group_rule">分组规则</string>
+    <string name="setting_group_rule_summary">已启用 %1$d / %2$d</string>
+    <string name="setting_home_buttons">首页按钮</string>
+    <string name="setting_home_history">首页最近观看</string>
+    <string name="setting_home_menu_key">首页菜单键</string>
+    <string name="setting_home_site_lock">首页源锁定</string>
+    <string name="setting_home_vod_auto_load">默认加载点播</string>
+    <string name="setting_interface_failover">点播接口容灾</string>
+    <string name="setting_personal">个性设置</string>
+    <string name="setting_play_back_to_detail">播放返回详情</string>
+    <string name="setting_play_speed">播放倍速</string>
+    <string name="setting_playback_overlay">播放菜单遮盖层</string>
+    <string name="setting_reset_app">重置APP</string>
+    <string name="setting_search_column">搜索结果列数</string>
+    <string name="setting_search_result_sort">搜索结果模式</string>
+    <string name="setting_search_thread">搜索线程</string>
+    <string name="setting_search_ui">搜索布局</string>
+    <string name="setting_site_column">站点展示模式</string>
+    <string name="setting_touch_optimization">触屏优化</string>
+
+
+    <!-- 上游 webhtv 原样搬回，未做英译中改写 -->
+    <string name="app_branding_icon_select">选择图标</string>
+    <string name="home_buttons_reset">重置</string>
 </resources>
