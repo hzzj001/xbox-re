@@ -38,6 +38,7 @@ import com.fongmi.android.tv.bean.Track;
 import com.fongmi.android.tv.impl.ParseCallback;
 import com.fongmi.android.tv.player.codec.CodecCapabilityInspector;
 import com.fongmi.android.tv.player.engine.ExoPlayerEngine;
+import com.fongmi.android.tv.player.engine.IjkPlayerEngine;
 import com.fongmi.android.tv.player.exo.ass.ExoAssSession;
 import com.fongmi.android.tv.player.engine.PlaySpec;
 import com.fongmi.android.tv.player.engine.PlayerCacheState;
@@ -1135,6 +1136,7 @@ public class PlayerManager implements ParseCallback {
 
     private PlayerEngine buildEngine(int type, int decode) {
         return switch (type) {
+            case PlayerSetting.IJK -> new IjkPlayerEngine(decode, listener);
             default -> new ExoPlayerEngine(decode, listener);
         };
     }

@@ -190,3 +190,52 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.7.0'
     testImplementation libs.okhttp.mockwebserver
 }
+
+// IJK 播放器原生库：构建时从公开的 hzzj001/webhtv 仓库拉取（与 webhtv
+// fork 自带的同一批 .so），缺失或 SHA-256 对不上时才下载，Exo 不受影响。
+def ijkLibs = [
+    'arm64-v8a'  : [
+        'libijkffmpeg.so': '08d6214494a350518508653cce9b1fbe91f8044247774ed4c5c275ce2502d871',
+        'libijkplayer.so': 'b9b6b297e25a77a52b95f11c5b12383b27cd965f54d4604aae4d31746a3f35fe',
+        'libijksdl.so'   : '63da55470f5974e04be5cb3c2b4d96828c8f8b271bd868c98932676d0f35295e'
+    ],
+    'armeabi-v7a': [
+        'libijkffmpeg.so': '3c8729920a3048feb194cda0f306e20aad3ac1bfc291a78072e4a56db88db333',
+        'libijkplayer.so': 'e09787fc5da8a3dc359c3da1659370b1fa9d470a1390eb6278ddc9f301969884',
+        'libijksdl.so'   : '7be04b0de2c1e20d34e8a294b88bdff7078440043afa1084a1a347be1c2e8a4a'
+    ]
+]
+
+def sha256Hex(File file) {
+    def digest = java.security.MessageDigest.getInstance('SHA-256')
+    file.withInputStream { stream ->
+        byte[] buffer = new byte[8192]
+        int read
+        while ((read = stream.read(buffer)) != -1) digest.update(buffer, 0, read)
+    }
+    return digest.digest().encodeHex().toString()
+}
+
+tasks.register('downloadIjkLibs') {
+    doLast {
+        ijkLibs.each { abi, libs ->
+            libs.each { name, expectedSha256 ->
+                def target = new File(projectDir, "src/main/jniLibs/${abi}/${name}")
+                if (target.exists() && sha256Hex(target) == expectedSha256) return
+                target.parentFile.mkdirs()
+                def url = "https://raw.githubusercontent.com/hzzj001/webhtv/main/app/src/main/jniLibs/${abi}/${name}"
+                logger.lifecycle("Downloading IJK library ${abi}/${name}")
+                new URL(url).withInputStream { input ->
+                    target.withOutputStream { output -> output << input }
+                }
+                if (sha256Hex(target) != expectedSha256) {
+                    throw new GradleException("SHA-256 mismatch for downloaded IJK library ${abi}/${name}")
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.findByName('preBuild')?.dependsOn tasks.named('downloadIjkLibs')
+}

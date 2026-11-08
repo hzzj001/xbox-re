@@ -90,23 +90,23 @@ public class PlayerSetting {
     }
 
     public static boolean isPlayer(int player) {
-        return player == EXO;
+        return player == EXO || player == IJK;
     }
 
     public static int sanitizePlayer(int player) {
-        return EXO;
+        return isPlayer(player) ? player : EXO;
     }
 
     public static int nextPlayer(int player) {
-        return EXO;
+        return player == EXO ? IJK : EXO;
     }
 
     public static int kernelIndex(int player) {
-        return 0;
+        return player == IJK ? 1 : 0;
     }
 
     public static int kernelAt(int index) {
-        return EXO;
+        return index == 1 ? IJK : EXO;
     }
 
     public static int getRender() {
