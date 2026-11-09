@@ -433,7 +433,7 @@ jobs:
               echo "::error title=Debug-signed APK::Refusing to publish a debug-signed release."
               exit 1
             fi
-            if ! echo "$CERTS" | grep -q "CN=xbox-re"; then
+            if ! echo "$CERTS" | grep -q "CN=hzzj001"; then
               echo "::error title=Unexpected signer::Release keystore was not used."
               exit 1
             fi
@@ -449,7 +449,7 @@ jobs:
             echo "xbox-re 签名与完整性自检报告（v1+v2+v3 单次签 / AGP 原生 ZIP / 文件全保留）"
             echo "tag: ${{ steps.meta.outputs.tag }}"
             echo "commit: $GITHUB_SHA"
-            echo "SHA256 证书指纹: 82:7C:75:5F:F6:04:3C:5B:3B:F0:65:8B:BD:21:10:C5:79:88:6C:9B:DC:91:55:CA:00:4A:BF:66:E5:59:D5:7B"
+            echo "SHA256 证书指纹: 9A:C2:60:89:E0:AC:83:8B:2F:AD:9B:6C:D0:40:22:4B:16:40:83:86:24:EA:00:56:FD:A2:65:B5:40:C1:9D:C9"
             echo ""
             for apk in dist/*.apk; do
               echo "=== $(basename "$apk") ==="
