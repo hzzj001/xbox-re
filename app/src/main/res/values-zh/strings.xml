@@ -1117,6 +1117,7 @@
 
     <string-array name="select_player_kernel">
         <item>EXO</item>
+        <item>IJK</item>
     </string-array>
     <string-array name="select_buffer_bytes">
         <item>自动</item>
