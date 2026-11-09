@@ -137,6 +137,7 @@ import com.fongmi.android.tv.ui.dialog.SubtitleDialog;
 import com.fongmi.android.tv.ui.dialog.TitleDialog;
 import com.fongmi.android.tv.ui.dialog.TrackDialog;
 import com.fongmi.android.tv.ui.dialog.VideoContentDialog;
+import com.fongmi.android.tv.ui.web.WebReaderActivity;
 import com.fongmi.android.tv.utils.Clock;
 import com.fongmi.android.tv.utils.EpisodeTitleCompact;
 import com.fongmi.android.tv.utils.FileChooser;
@@ -1134,6 +1135,11 @@ public class VideoActivity extends PlaybackActivity implements Clock.Callback, C
 
     private void setPlayer(Result result) {
         if (isFinishing() || isDestroyed()) return;
+        if (WebReaderActivity.tryRoute(this, result)) {
+            mBinding.swipeLayout.setRefreshing(false);
+            finish();
+            return;
+        }
         if (service() == null) {
             mPendingPlayerResult = result;
             return;

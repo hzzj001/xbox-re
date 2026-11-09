@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>书阁 · 阅读</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body class="theme-day">
+
+<!-- ================= 书架 ================= -->
+<section id="view-shelf" class="view active">
+  <header class="bar">
+    <h1>我的书架</h1>
+    <div class="bar-actions">
+      <button class="icon-btn" id="btn-shelf-refresh" title="刷新更新">⟳</button>
+    </div>
+  </header>
+  <div id="shelf-list" class="shelf-list"></div>
+  <div id="shelf-empty" class="empty">
+    <div class="empty-emoji">📚</div>
+    <p>书架还是空的</p>
+    <p class="dim">去「发现」搜一本，或者从书源里挑一本</p>
+    <button class="btn primary" data-goto="search">去找书</button>
+  </div>
+</section>
+
+<!-- ================= 发现/搜索 ================= -->
+<section id="view-search" class="view">
+  <header class="bar">
+    <h1>发现</h1>
+  </header>
+  <div class="searchbox">
+    <input id="search-input" type="search" placeholder="书名或作者" autocomplete="off">
+    <button id="btn-search" class="btn primary">搜索</button>
+  </div>
+  <div id="search-status" class="search-status"></div>
+  <div id="search-result" class="result-list"></div>
+</section>
+
+<!-- ================= 书籍详情 ================= -->
+<section id="view-book" class="view">
+  <header class="bar">
+    <button class="icon-btn" data-back="1">‹</button>
+    <h1 id="book-title">详情</h1>
+    <button class="icon-btn" id="btn-book-more">⋯</button>
+  </header>
+  <div id="book-body" class="book-body"></div>
+</section>
+
+<!-- ================= 阅读 ================= -->
+<section id="view-read" class="view reader">
+  <header class="bar reader-bar" id="reader-bar">
+    <button class="icon-btn" id="btn-read-back">‹</button>
+    <h1 id="read-chapter">正文</h1>
+    <button class="icon-btn" id="btn-read-menu">Aa</button>
+  </header>
+  <div id="read-scroll" class="read-scroll">
+    <div id="read-content" class="read-content"></div>
+    <div class="read-foot">
+      <button class="btn" id="btn-prev-chapter">上一章</button>
+      <button class="btn" id="btn-next-chapter">下一章</button>
+    </div>
+  </div>
+  <div id="read-panel" class="read-panel">
+    <div class="panel-row">
+      <span>亮度主题</span>
+      <div class="theme-picker">
+        <button data-theme="day" class="tday">日间</button>
+        <button data-theme="night" class="tnight">夜间</button>
+        <button data-theme="sepia" class="tsepia">护眼</button>
+      </div>
+    </div>
+    <div class="panel-row">
+      <span>字号</span>
+      <div class="stepper">
+        <button id="font-minus">A-</button>
+        <em id="font-size-label">18</em>
+        <button id="font-plus">A+</button>
+      </div>
+    </div>
+    <div class="panel-row">
+      <span>行距</span>
+      <div class="stepper">
+        <button id="line-minus">-</button>
+        <em id="line-label">1.8</em>
+        <button id="line-plus">+</button>
+      </div>
+    </div>
+    <div class="panel-row">
+      <span>目录</span>
+      <div class="stepper">
+        <button id="btn-toc">打开目录</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 目录（阅读中） ================= -->
+<section id="view-toc" class="view">
+  <header class="bar">
+    <button class="icon-btn" data-back="1">‹</button>
+    <h1>目录</h1>
+    <button class="icon-btn" id="btn-toc-jump">跳转</button>
+  </header>
+  <div id="toc-list" class="toc-list"></div>
+</section>
+
+<!-- ================= 书源 ================= -->
+<section id="view-sources" class="view">
+  <header class="bar">
+    <h1>书源设置</h1>
+    <button class="icon-btn" id="btn-add-source" title="导入书源">＋</button>
+  </header>
+  <div class="tip-card">
+    <b>怎么用</b>
+    <p>内置书源开箱可用。也可以把「阅读」App 的书源 JSON 粘进来，自动识别 CSS 规则。</p>
+  </div>
+  <div id="source-list" class="source-list"></div>
+  <div class="hint-block">
+    <b>支持的书源规则</b>
+    <ul>
+      <li>@css:选择器@text / @html / @href / @src / @title</li>
+      <li>列表选择器 + 书名 / 作者 / 链接 / 封面 / 简介 / 最新章节</li>
+      <li>##正则##替换 做文本清洗，可用 || 取首个非空</li>
+      <li>搜索模板支持 {{key}} {{page}}，GET/POST 都行</li>
+    </ul>
+    <p class="dim">识别不了的书源会标红，可以手动改规则再保存。</p>
+  </div>
+</section>
+
+<!-- ================= 底部导航 ================= -->
+<nav id="tabbar" class="tabbar">
+  <button data-goto="shelf" class="active"><i>📖</i><span>书架</span></button>
+  <button data-goto="search"><i>🔍</i><span>发现</span></button>
+  <button data-goto="sources"><i>⚙️</i><span>书源</span></button>
+</nav>
+
+<!-- ================= 通用弹层 ================= -->
+<div id="sheet" class="sheet-mask">
+  <div class="sheet">
+    <h3 id="sheet-title">标题</h3>
+    <div id="sheet-body" class="sheet-body"></div>
+    <div class="sheet-actions">
+      <button class="btn" id="sheet-cancel">取消</button>
+      <button class="btn primary" id="sheet-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="sources.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
